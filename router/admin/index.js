@@ -27,24 +27,23 @@ router.get("/", async (req, res) => {
 
 
 router.post("/sign-up", async (req, res) => {
-    // try {
-    await checkingError(req, res)
-
-    req.body.password = await bcrypt.hash(req.body.password, 10)
-    const newAdmin = await Admins.create(req.body)
-    res.status(201).json({
-        status: true,
-        msg: "user is created",
-        innerData: newAdmin
-    })
-    // }
-    // catch {
-    //     res.status(500).json({
-    //         state: false,
-    //         msg: "Something went wrong on server",
-    //         innerData: null
-    //     })
-    // }
+    try {
+        await checkingError(req, res)
+        req.body.password = await bcrypt.hash(req.body.password, 10)
+        const newAdmin = await Admins.create(req.body)
+        res.status(201).json({
+            status: true,
+            msg: "user is created",
+            innerData: newAdmin
+        })
+    }
+    catch {
+        res.status(500).json({
+            state: false,
+            msg: "Something went wrong on server",
+            innerData: null
+        })
+    }
 })
 
 

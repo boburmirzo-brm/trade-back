@@ -1,5 +1,5 @@
-const bcrypt = require("bcrypt")
-const JWT = require("jsonwebtoken")
+const bcrypt = require("bcrypt"),
+    JWT = require("jsonwebtoken")
 
 exports.cryptPassword = ({ username, admin, password }, response) => {
     bcrypt.compare(password, admin.password, function (err, result) {
