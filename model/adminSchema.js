@@ -29,7 +29,7 @@ const AdminSchema = new Schema({
     },
     createdAt: {
         type: String,
-        required: true,
+        required: false,
         default: new Date()
     },
     isActive: {
@@ -54,9 +54,9 @@ const validateAdmin = (body) => {
         lname: JOI.string().required(),
         phones: JOI.array().required(),
         role: JOI.string().required(),
-        username: JOI.string().required(),
+        username: JOI.string().min(4).required(),
         password: JOI.string().min(8).max(32).required(),
-        createdAt: JOI.string().required(),
+        createdAt: JOI.string(),
         isActive: JOI.boolean().required(),
         salaries: JOI.array().required(),
         expenses: JOI.array().required()
