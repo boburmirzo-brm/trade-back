@@ -21,10 +21,8 @@ app.get("/", async (req, res) => {
     res.status(200).json("Mern is working")
 })
 
-
-const Admins = require("./router/admin/index")
-app.use("/admin", Admins)
-
+const Routers = require("./router")
+app.use("/", Routers)
 
 const PORT = process.env.PORT || 8000
 app.listen(PORT, () => {
