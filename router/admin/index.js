@@ -63,4 +63,45 @@ router.post("/sign-in", async (req, res) => {
     }
 })
 
+router.delete("/:id", async (req, res) => {
+    try {
+        const { id } = req.params
+        await Admins.findByIdAndRemove(id)
+        res.status(200).json({
+            state: true,
+            msg: "Succesfully deleted",
+            innerData: null
+        })
+    }
+    catch {
+        res.status(500).json({
+            state: false,
+            msg: "Something went wrong on server",
+            innerData: null
+        })
+    }
+})
+
+router.get("/:id", async (req, res) => {
+    try {
+        const { id } = req.params
+        await Admins.findByIdAndUpdate(id, req.body)
+        res.status(200).json({
+            state: true,
+            msg: "Succesfully updated",
+            innerData: req.body
+        })
+    }
+    catch {
+        res.status(500).json({
+            state: false,
+            msg: "Something went wrong on server",
+            innerData: null
+        })
+    }
+})
+
+
+
+
 module.exports = router
