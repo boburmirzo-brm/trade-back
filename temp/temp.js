@@ -11,8 +11,8 @@ const admin = {
   password: "",
   createdAt: "",
   isActive: true,
-  salaries: [],
-  expenses: ["id", "id"],
+  // salaries: [],
+  // expenses: ["id", "id"],
 };
 const salary = {
   id: "",
@@ -30,9 +30,10 @@ const seller = {
   lname: "",
   phones: [],
   address: "",
-  budget: -1_000_000,
+  budget: -1_000_000,// agar "-" man qarzman, "+" u qarzdor
   createdAt: "",
   adminId: "",
+  isActive: true,
 };
 
 // done
@@ -52,9 +53,10 @@ const customer = {
   lname: "",
   phones: [],
   address: "",
-  budget: -1_000_000,
+  budget: -900_000,// agar "+" man qarzman, "-" u qarzdor
   createdAt: "",
   adminId: "",
+  isActive: true,
 };
 
 // done
@@ -62,12 +64,12 @@ const product = {
   id: "",
   title: "",
   price: 0,
-  quantity: 50,
+  quantity: 62,
   category: "",
   units: "kg, dona, litr, m2",
   createdAt: "",
   comment: "",
-  adminID: "",
+  adminId: "",
 };
 // done
 const buyOrSell =  {
@@ -76,8 +78,8 @@ const buyOrSell =  {
   orderId: "", // output -> orderId value keladi
   sellerId: "id-salim", // input -> sellerId value keladi
   title: "",
-  price: 0,
-  quantity: 0,
+  price: 14500,
+  quantity: 10,
   units: "kg",
   comment: "",
   createdAt: "",
@@ -100,7 +102,7 @@ const payment = {
   id: "",
   customerId: "",
   adminId:"",
-  amount: 500_000,
+  amount: 400_000,
   createdAt: "",
   comment: "",
 };

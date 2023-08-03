@@ -6,7 +6,7 @@ exports.getAdmins = async (req, res) => {
     const admins = await Admins.find();
     res
       .status(200)
-      .json({ variant: "success", msg: "all admins", innerData: admins });
+      .json({ variant: "success", msg: "Barcha adminlar", innerData: admins });
   } catch {
     res
       .status(500)
@@ -19,7 +19,7 @@ exports.createAdmin = async (req, res) => {
     const { error } = validateAdmin(req.body);
     if (error) {
       return res.status(400).json({
-        variant: "error",
+        variant: "warning",
         msg: error.details[0].message,
         innerData: null,
       });
@@ -29,7 +29,7 @@ exports.createAdmin = async (req, res) => {
     if (validUsername) {
       return res.status(400).json({
         variant: "error",
-        msg: "Username was taken",
+        msg: "Bu username allaqachon mavjud",
         innerData: null,
       });
     }
@@ -38,7 +38,7 @@ exports.createAdmin = async (req, res) => {
     const newAdmin = await Admins.create(req.body);
     res.status(201).json({
       variant: "success",
-      msg: "user is created",
+      msg: "Foydalanuvchi muvaffaqiyatli qo'shildi",
       innerData: newAdmin,
     });
   } catch {
