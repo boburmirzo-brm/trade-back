@@ -34,7 +34,7 @@ exports.createAdmin = async (req, res) => {
       });
     }
     // req.body.password = await bcrypt.hash(req.body.password, 10); // buni gaplawamiz
-    
+
     const newAdmin = await Admins.create(req.body);
     res.status(201).json({
       variant: "success",

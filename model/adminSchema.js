@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose"),
-    JOI = require("joi")
+    JOI = require("joi"),
+    moment = require("moment")
 
 
 const AdminSchema = new Schema({
@@ -30,20 +31,21 @@ const AdminSchema = new Schema({
     createdAt: {
         type: String,
         required: false,
-        default: new Date()
+        default: moment().format('LLLL')
     },
     isActive: {
         type: Boolean,
         require: true
-    },
-    salaries: {
-        type: Array,
-        require: true
-    },
-    expenses: {
-        type: Array,
-        require: true
     }
+    // ,
+    // salaries: {
+    //     type: Array,
+    //     require: true
+    // },
+    // expenses: {
+    //     type: Array,
+    //     require: true
+    // }
 })
 
 const Admins = model("admins", AdminSchema)
@@ -57,9 +59,10 @@ const validateAdmin = (body) => {
         username: JOI.string().required().min(4),
         password: JOI.string().required().min(8).max(32),
         createdAt: JOI.string(),
-        isActive: JOI.boolean().required(),
-        salaries: JOI.array().required(),
-        expenses: JOI.array().required()
+        isActive: JOI.boolean().required()
+        // ,
+        // salaries: JOI.array().required(),
+        // expenses: JOI.array().required()
     })
     return schema.validate(body)
 }
