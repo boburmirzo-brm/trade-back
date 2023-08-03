@@ -1,5 +1,5 @@
-const { addSyntheticLeadingComment } = require("typescript");
 const { Admins, validateAdmin } = require("../model/adminSchema");
+const bcrypt = require("bcrypt")
 
 exports.getAdmins = async (req, res) => {
   try {
@@ -33,7 +33,7 @@ exports.createAdmin = async (req, res) => {
         innerData: null,
       });
     }
-    req.body.password = await bcrypt.hash(req.body.password, 10); // buni gaplawamiz
+    // req.body.password = await bcrypt.hash(req.body.password, 10); // buni gaplawamiz
     
     const newAdmin = await Admins.create(req.body);
     res.status(201).json({
