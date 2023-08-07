@@ -7,6 +7,8 @@ const { getSalary, createSalary, updateSalary, deleteSalary } = require("../cont
 const { getProducts, createProduct } = require("../controller/product");
 const { getPayments, createPayment } = require("../controller/payment")
 const { getCustomer, createCustomer } = require("../controller/customer")
+const { getOrders, createOrder } = require("../controller/order")
+const { getExpenses, createExpense } = require("../controller/expense")
 
 // get -> get
 // delete -> delete
@@ -23,6 +25,12 @@ router.get("/get/buy-or-sell", getBuyOrSells)
 
 
 // Order route
+router.get("/get/orders", getOrders)
+router.post("/create/order", createOrder)
+
+// Expense route
+router.get("/get/expenses", getExpenses)
+router.post("/create/expense", createExpense)
 
 
 

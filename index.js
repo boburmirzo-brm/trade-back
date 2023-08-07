@@ -13,7 +13,7 @@ config()
 
 
 mongoose.connect(process.env.MONGODB_URL)
-    .then((res => console.log("MONGO is connected")))
+    .then((res => console.log("MongoDB is connected")))
     .catch((err) => console.log(err))
 
 
