@@ -72,7 +72,7 @@ const product = {
   adminId: "",
 };
 // done
-const buyOrSell =  {
+const buyOrSell = {
   id: "", // qaytarish uchun
   status: "input", // status - input or output
   orderId: "", // output -> orderId value keladi
@@ -83,7 +83,7 @@ const buyOrSell =  {
   units: "kg",
   comment: "",
   createdAt: "",
-  adminId:"",
+  adminId: "",
   returnedItem: false // qaytarish uchun
 }
 
@@ -101,7 +101,7 @@ const order = {
 const payment = {
   id: "",
   customerId: "",
-  adminId:"",
+  adminId: "",
   amount: 400_000,
   createdAt: "",
   comment: "",
@@ -194,7 +194,7 @@ let b = -150_000
 
 // order POST (customer)
 // customer budgetdan orderni totalPrice ayiramz
-// formula 
+// formula
 // budget - orderTotalPrice
 
 // order PATCH (customer)
@@ -205,7 +205,7 @@ let b = -150_000
 // order DELETE (customer)
 // customer budgetga orderni totalPrice qo'shamiz
 // formula
-// budget + orderTotalPrice 
+// budget + orderTotalPrice
 
 
 

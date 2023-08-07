@@ -4,9 +4,9 @@ const {getSellers, createSeller} = require("../controller/seller")
 const { getBuyOrSells } = require("../controller/buyOrSell")
 const { getAdmins, createAdmin } = require("../controller/admin")
 const { getSalary, createSalary, updateSalary, deleteSalary } = require("../controller/salary")
-
-//? import product
 const { getProducts, createProduct } = require("../controller/product");
+const { getPayments, createPayment } = require("../controller/payment")
+const { getCustomer, createCustomer } = require("../controller/customer")
 
 // get -> get
 // delete -> delete
@@ -41,5 +41,14 @@ router.delete("/delete/salary", deleteSalary)
 //? product route
 router.get("/get/product", getProducts);
 router.post("/create/product", createProduct);
+
+// Payment route
+router.get("/get/payment", getPayments)
+router.post("/create/payment", createPayment)
+
+// Customer route
+router.get("/get/customer", getCustomer)
+router.post("/create/customer", createCustomer)
+
 
 module.exports = router
