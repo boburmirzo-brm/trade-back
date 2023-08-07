@@ -2,7 +2,11 @@ const { Expense, validateExpense } = require("../model/expenseSchema")
 
 exports.getExpenses = async (req, res) => {
     try {
-        const allExpenses = await Expense.find()
+        let {from, to} = req.query
+        // console.log(new Date(from));
+        // console.log(new Date(to));
+        const allExpenses = await Expense.find(from && to && {createdAt: {$gte: new Date(from), $lte: new Date(to)}}).sort({_id:-1})
+
         res.status(200).json({ variant: "success", msg: "Barcha Xarajatlar", innerData: allExpenses });
     }
     catch {

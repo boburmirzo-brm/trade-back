@@ -1,5 +1,4 @@
 const { Schema, model } = require("mongoose"),
-    moment = require("moment"),
     JOI = require("joi")
 
 
@@ -15,7 +14,7 @@ const salarySchema = new Schema({
     createdAt: {
         type: String,
         require: false,
-        default: moment().format('LLLL')
+        default: new Date().toISOString()
     },
     comment: {
         type: String,

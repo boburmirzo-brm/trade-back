@@ -1,6 +1,5 @@
 const { Schema, model } = require("mongoose"),
-    JOI = require("joi"),
-    moment = require("moment")
+    JOI = require("joi")
 
 
 const AdminSchema = new Schema({
@@ -31,7 +30,7 @@ const AdminSchema = new Schema({
     createdAt: {
         type: String,
         required: false,
-        default: moment().format('LLLL')
+        default: new Date()
     },
     isActive: {
         type: Boolean,

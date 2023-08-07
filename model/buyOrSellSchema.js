@@ -45,11 +45,11 @@ const buyOrSellSchema = new mongoose.Schema(
       default: false,
       required: true,
     },
-    createdAt: {
-      type: String,
-      required: true,
-      default: new Date()
-    }
+    // createdAt: {
+    //   type: String,
+    //   required: true,
+    //   default: new Date()
+    // }
   },
   {
     timestamps: true,
@@ -76,7 +76,7 @@ const validateBuyOrSell = (body) => {
     comment: JOI.string().allow(""),
     adminId: JOI.string().required(),
     returnedItem: JOI.boolean().required(),
-    createdAt: JOI.string().required(),
+    // createdAt: JOI.string().required(),
   });
   return schema.validate(body);
 };

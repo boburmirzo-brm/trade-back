@@ -23,7 +23,7 @@ exports.createPayment = async (req, res) => {
                 innerData: null,
             });
         }
-
+        
         const newPayment = await Payments.create(req.body);
         res.status(201).json({
             variant: "success",

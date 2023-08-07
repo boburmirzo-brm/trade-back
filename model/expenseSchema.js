@@ -17,7 +17,7 @@ const expenseSchema = new Schema({
     createdAt: {
         type: String,
         required: false,
-        default: new Date()
+        default: new Date().toISOString()
     },
     comment: {
         type: String,
