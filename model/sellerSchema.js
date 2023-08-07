@@ -28,7 +28,8 @@ const SellerSchema = new Schema({
         require: false,
         default: new Date()
     },
-    adminIn: {
+    // adminIn - xato bulib qopti
+    adminId: {
         type: String,
         require: true
     },
@@ -48,7 +49,7 @@ const validateSeller = (body) => {
       address: JOI.string().required(),
       budget: JOI.number().required(),
       createdAt: JOI.string(),
-      adminIn: JOI.string().required(),
+      adminId: JOI.string().required(),
       isActive: JOI.boolean().required()
   })
   return schema.validate(body)
