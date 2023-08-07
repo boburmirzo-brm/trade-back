@@ -5,6 +5,9 @@ const { getBuyOrSells } = require("../controller/buyOrSell")
 const { getAdmins, createAdmin } = require("../controller/admin")
 const { getSalary, createSalary, updateSalary, deleteSalary } = require("../controller/salary")
 
+//? import product
+const { getProducts, createProduct } = require("../controller/product");
+
 // get -> get
 // delete -> delete
 // put -> update
@@ -32,5 +35,11 @@ router.get("/get/salary", getSalary)
 router.post("/create/salary", createSalary)
 router.put("/update/salary", updateSalary)
 router.delete("/delete/salary", deleteSalary)
+// Order route
+
+
+//? product route
+router.get("/get/product", getProducts);
+router.post("/create/product", createProduct);
 
 module.exports = router
