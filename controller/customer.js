@@ -1,15 +1,19 @@
 const { Customers, validateCustomer } = require("../model/customerSchema");
 
-exports.getCustomer = async (req, res) => {
+exports.getCustomer = async (req, res, next) => {
     try {
         const customers = await Customers.find();
-        res
-            .status(200)
-            .json({ variant: "success", msg: "Barcha mijozlar", innerData: customers });
+        res.status(200).json({
+            variant: "success",
+            msg: "Barcha mijozlar",
+            innerData: customers
+        });
     } catch {
-        res
-            .status(500)
-            .json({ variant: "error", msg: "server error", innerData: null });
+        res.status(500).json({
+            variant: "error",
+            msg: "server error",
+            innerData: null
+        });
     }
 };
 

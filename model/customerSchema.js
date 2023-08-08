@@ -30,7 +30,7 @@ const CustomerSchema = new Schema({
     createdAt: {
         type: String,
         required: false,
-        default: new Date()
+        default: new Date().toISOString()
     },
     isActive: {
         type: Boolean,

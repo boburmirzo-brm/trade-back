@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const {getSellers, createSeller} = require("../controller/seller")
+const { getSellers, createSeller } = require("../controller/seller")
 const { getBuyOrSells } = require("../controller/buyOrSell")
 const { getAdmins, createAdmin } = require("../controller/admin")
 const { getSalary, createSalary, updateSalary, deleteSalary } = require("../controller/salary")
