@@ -1,20 +1,28 @@
-const mongoose = require("mongoose"),
-  JOI = require("joi");
+const { Schema, model } = require('mongoose');
+const JOI = require('joi');
 
-const buyOrSellSchema = new mongoose.Schema(
+const buyOrSellSchema = new Schema(
   {
     status: {
       type: String,
-      enum: ["input", "output"],
+      enum: ['input', 'output'],
       required: true,
     },
     orderId: {
       type: String,
-      default: "",
+      required: function () {
+        return this.status === 'output';
+      },
     },
     sellerId: {
       type: String,
-      default: "",
+      required: function () {
+        return this.status === 'input';
+      },
+    },
+    productId : {
+      type: String,
+      required: true,
     },
     title: {
       type: String,
@@ -34,7 +42,7 @@ const buyOrSellSchema = new mongoose.Schema(
     },
     comment: {
       type: String,
-      default: "",
+      default: '',
     },
     adminId: {
       type: String,
@@ -42,46 +50,39 @@ const buyOrSellSchema = new mongoose.Schema(
     },
     returnedItem: {
       type: Boolean,
-      default: false,
       required: true,
+      default: false,
     },
-    // createdAt: {
-    //   type: String,
-    //   required: true,
-    //   default: new Date()
-    // }
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-const BuyOrSells = mongoose.model("BuyOrSell", buyOrSellSchema);
+const BuyOrSells = model('BuyOrSell', buyOrSellSchema);
 
 const validateBuyOrSell = (body) => {
-  JOI.object({
-    status: JOI.string().valid("input", "output").required(),
-    orderId: JOI.string().when("status", {
-      is: "output",
-      then: JOI.required(),
+  const schema = JOI.object({
+    status: JOI.string().valid('input', 'output').required(),
+    orderId: JOI.when('status', {
+      is: 'output',
+      then: JOI.string().required(),
+      otherwise: JOI.string().allow(''),
     }),
-    sellerId: JOI.string().when("status", {
-      is: "input",
-      then: JOI.required(),
+    sellerId: JOI.when('status', {
+      is: 'input',
+      then: JOI.string().required(),
+      otherwise: JOI.string().allow(''),
     }),
     title: JOI.string().required(),
+    productId: JOI.string().required(),
     price: JOI.number().required(),
     quantity: JOI.number().required(),
     units: JOI.string().required(),
-    comment: JOI.string().allow(""),
+    comment: JOI.string().allow(''),
     adminId: JOI.string().required(),
     returnedItem: JOI.boolean().required(),
-    // createdAt: JOI.string().required(),
   });
+
   return schema.validate(body);
 };
 
-module.exports = {
-  BuyOrSells,
-  validateBuyOrSell,
-};
+module.exports = { BuyOrSells, validateBuyOrSell };

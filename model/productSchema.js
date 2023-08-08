@@ -25,7 +25,7 @@ const productSchema = new Schema({
     createdAt: {
         type: String,
         required: true,
-        default: new Date()
+        default: new Date().toISOString()
     },
     comment: String,
     adminId: {

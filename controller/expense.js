@@ -1,12 +1,10 @@
-const { Expense, validateExpense } = require("../model/expenseSchema")
+const { Expense, validateExpense } = require("../model/expenseSchema");
+const { Sellers } = require("../model/sellerSchema");
+const {dateQuery} = require("../utils/dateQuery")
 
 exports.getExpenses = async (req, res) => {
     try {
-        let {from, to} = req.query
-        // console.log(new Date(from));
-        // console.log(new Date(to));
-        const allExpenses = await Expense.find(from && to && {createdAt: {$gte: new Date(from), $lte: new Date(to)}}).sort({_id:-1})
-
+        const allExpenses = await Expense.find(dateQuery(req.query)).sort({_id:-1})
         res.status(200).json({ variant: "success", msg: "Barcha Xarajatlar", innerData: allExpenses });
     }
     catch {
@@ -20,6 +18,7 @@ exports.createExpense = async (req, res) => {
         if (error) {
             return res.status(400).json({ variant: "warning", msg: error.details[0].message, innerData: null });
         }
+        // let seller = Sellers.findById(req.body.sellerId)
         const newExpense = await Expense.create(req.body)
         res.status(201).json({ variant: "success", msg: "Xarajat Yaratildi", innerData: newExpense });
     }

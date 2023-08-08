@@ -24,16 +24,17 @@ const CustomerSchema = new Schema({
         required: true
     },
     adminId: {
-        type: Number,
+        type: String,
         required: true
     },
     createdAt: {
         type: String,
         required: false,
-        default: new Date()
+        default: new Date().toISOString()
     },
     isActive: {
         type: Boolean,
+        default: true,
         required: true
     }
 })
