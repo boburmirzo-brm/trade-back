@@ -10,7 +10,7 @@ const expenseSchema = new Schema({
         type: String,
         required: true
     },
-    amout: {
+    amount: {
         type: Number,
         required: true
     },
@@ -31,7 +31,7 @@ const validateExpense = (body) => {
     const schema = Joi.object({
         adminId: Joi.string().required(),
         sellerId: Joi.string().required(),
-        amout: Joi.number().required(),
+        amount: Joi.number().required(),
         createdAt: Joi.string(),
         comment: Joi.string(),
     })
