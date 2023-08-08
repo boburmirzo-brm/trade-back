@@ -6,7 +6,7 @@ const {
   createBuyOrSell,
   deleteBuyOrSell,
 } = require('../controller/buyOrSell');
-const { getAdmins, createAdmin } = require('../controller/admin');
+const { getAdmins, createAdmin, getSingleAdmin, signInAdmin, isActiceAdmin, updateAdmins } = require('../controller/admin');
 const {
   getSalary,
   createSalary,
@@ -28,10 +28,16 @@ const { getExpenses, createExpense } = require('../controller/expense');
 // Admin route
 router.get('/get/admin', getAdmins);
 // router.get('/single/admin/:id', getAdmins);
+router.get("/get/single/admin/:id", getSingleAdmin)
+// router.create("/create/admin",createAdmin);
 router.post('/create/admin', createAdmin);
 // router.post('/sign-in/admin', createAdmin);
+router.post("/sign-in/admin", signInAdmin)
 // router.patch('/update/admin', createAdmin);
-// router.patch('/isactive/admin', createAdmin); // !boolean
+router.patch("/update/admin/:id", updateAdmins)
+// router.patch('/isactive/admin', createAdmin);
+router.patch("/isactive/admin/:id", isActiceAdmin)
+
 
 // BuyOrSell route
 router.get('/get/buy-or-sell', getBuyOrSells);
@@ -59,7 +65,7 @@ router.post('/create/seller', createSeller);
 router.get('/get/salary', getSalary);
 router.post('/create/salary', createSalary);
 router.patch('/update/salary/:id', updateSalary);
-router.delete('/delete/salary/:id', deleteSalary);
+
 // Order route
 
 //? product route

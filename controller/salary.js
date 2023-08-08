@@ -1,10 +1,11 @@
 const { Salaries, validateSalaries } = require("../model/salarySchema")
+const { dateQuery } = require("../utils/dateQuery")
 
 exports.getSalary = async (req, res) => {
     try {
-        const salaries = await Salaries.find().sort({ _id: -1 })
+        const salaries = await Salaries.find(dateQuery(req.query)).sort({ _id: -1 })
         // await Salaries.deleteMany({})
-        res
+        return res
             .status(200)
             .json({ variant: "success", msg: "Barcha oyliklar to'plami", innerData: salaries })
     }
@@ -26,7 +27,7 @@ exports.createSalary = async (req, res) => {
             });
         }
         const newSalary = await Salaries.create(req.body)
-        res
+        return res
             .status(201)
             .json({ variant: "succes", msg: "Ma'lumot muvaffaqiyatli yaratildi", innerData: newSalary })
     }
@@ -40,10 +41,17 @@ exports.createSalary = async (req, res) => {
 exports.updateSalary = async (req, res) => {
     try {
         const { id } = req.params
-        const updatedSalary = await Salaries.findByIdAndUpdate(id, req.body)
-        res
+        const { adminId, amount, comment } = req.body
+        await Salaries.updateOne({ _id: id }, {
+            $set: {
+                adminId, amount, comment
+            }
+        })
+        const updatedSalaryOne = await Salaries.find({ _id: id })
+
+        return res
             .status(200)
-            .json({ variant: "succes", msg: "Ma'lumot qayta tahrirlandi", innerData: updatedSalary })
+            .json({ variant: "succes", msg: "Ma'lumot qayta tahrirlandi", innerData: updatedSalaryOne })
     }
     catch {
         res
@@ -52,17 +60,3 @@ exports.updateSalary = async (req, res) => {
     }
 }
 
-exports.deleteSalary = async (req, res) => {
-    try {
-        const { id } = req.params
-        await Salaries.findByIdAndDelete(id, req.body)
-        res
-            .status(200)
-            .json({ variant: "succes", msg: "Ma'lumot o'chirib yuborildi", innerData: null })
-    }
-    catch {
-        res
-            .status(500)
-            .json({ variant: "error", msg: "Serverda xatolik yuz berdi", innerData: null })
-    }
-}
