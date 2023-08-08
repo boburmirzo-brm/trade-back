@@ -26,7 +26,7 @@ const SellerSchema = new Schema({
     createdAt: {
         type: String,
         require: false,
-        default: new Date()
+        default: new Date().toISOString()
     },
     // adminIn - xato bulib qopti
     adminId: {
