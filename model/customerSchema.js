@@ -24,7 +24,7 @@ const CustomerSchema = new Schema({
         required: true
     },
     adminId: {
-        type: Number,
+        type: String,
         required: true
     },
     createdAt: {
@@ -34,6 +34,7 @@ const CustomerSchema = new Schema({
     },
     isActive: {
         type: Boolean,
+        default: true,
         required: true
     }
 })

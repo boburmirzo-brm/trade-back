@@ -5,27 +5,27 @@ const { Schema, model } = require("mongoose"),
 const AdminSchema = new Schema({
     fname: {
         type: String,
-        require: true
+        required: true
     },
     lname: {
         type: String,
-        require: true
+        required: true
     },
     phones: {
         type: Array,
-        require: true
+        required: true
     },
     role: {
         type: String,
-        require: true
+        required: true
     },
     username: {
         type: String,
-        require: true
+        required: true
     },
     password: {
         type: String,
-        require: true
+        required: true
     },
     createdAt: {
         type: String,
@@ -34,7 +34,8 @@ const AdminSchema = new Schema({
     },
     isActive: {
         type: Boolean,
-        require: true
+        default: true,
+        required: true
     }
     // ,
     // salaries: {

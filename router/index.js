@@ -27,7 +27,11 @@ const { getExpenses, createExpense } = require('../controller/expense');
 
 // Admin route
 router.get('/get/admin', getAdmins);
+// router.get('/single/admin/:id', getAdmins);
 router.post('/create/admin', createAdmin);
+// router.post('/sign-in/admin', createAdmin);
+// router.patch('/update/admin', createAdmin);
+// router.patch('/isactive/admin', createAdmin); // !boolean
 
 // BuyOrSell route
 router.get('/get/buy-or-sell', getBuyOrSells);
@@ -41,16 +45,21 @@ router.post('/create/order', createOrder);
 // Expense route
 router.get('/get/expenses', getExpenses);
 router.post('/create/expense', createExpense);
+// router.patch('/update/expense/:id', createExpense);
+// router.delete('/delete/expense/:id', createExpense);
 
 // Seller route
 router.get('/get/seller', getSellers);
+// router.get('/single/seller/:id', getSellers); // single seller
 router.post('/create/seller', createSeller);
+// router.patch('/update/seller/:id', lorem);
+// router.patch('/isactive/seller/:id', lorem); // !boolean
 
 // Salary route
 router.get('/get/salary', getSalary);
 router.post('/create/salary', createSalary);
-router.put('/update/salary', updateSalary);
-router.delete('/delete/salary', deleteSalary);
+router.patch('/update/salary/:id', updateSalary);
+router.delete('/delete/salary/:id', deleteSalary);
 // Order route
 
 //? product route
@@ -64,5 +73,7 @@ router.post('/create/payment', createPayment);
 // Customer route
 router.get('/get/customer', getCustomer);
 router.post('/create/customer', createCustomer);
+// router.patch('/update/customer', createCustomer);
+// router.patch('/isactive/customer/:id', lorem); // !boolean
 
 module.exports = router;

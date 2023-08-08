@@ -1,3 +1,4 @@
+const { Customers } = require("../model/customerSchema");
 const { Payments, validatePayment } = require("../model/paymentSchema");
 
 exports.getPayments = async (req, res) => {
@@ -23,7 +24,7 @@ exports.createPayment = async (req, res) => {
                 innerData: null,
             });
         }
-        
+        // let customer = Customers.
         const newPayment = await Payments.create(req.body);
         res.status(201).json({
             variant: "success",

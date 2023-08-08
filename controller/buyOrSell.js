@@ -40,7 +40,20 @@ exports.createBuyOrSell = async (req, res) => {
         innerData: null,
       });
     }
-
+    if (req.body.status === 'input'){
+      // seller -> budget + (price * quantity)
+    }else if(req.body.status === 'output'){
+      // customer -> budget - (price * quantity)
+    }
+    // Products -> productId -> 
+    // let totalPriceInStore = (product.quontity * product.price)
+    // 13 000 * 10 = 130 000
+    // let newProductPrice = (price * quantity)
+    // 15 000 * 100 = 1 500 000
+    // let total =  totalPriceInStore + newProductPrice
+    // 130 000 + 1 500 000 = 1 630 000
+    // let singlePrice = total / (product.quontity + quantity)
+    // 1 630 000 / 110 = 14 818
     const BuyOrSell = await BuyOrSells.create(req.body);
     res.status(201).json({
       variant: 'success',

@@ -20,6 +20,10 @@ const buyOrSellSchema = new Schema(
         return this.status === 'input';
       },
     },
+    productId : {
+      type: String,
+      required: true,
+    },
     title: {
       type: String,
       required: true,
@@ -69,6 +73,7 @@ const validateBuyOrSell = (body) => {
       otherwise: JOI.string().allow(''),
     }),
     title: JOI.string().required(),
+    productId: JOI.string().required(),
     price: JOI.number().required(),
     quantity: JOI.number().required(),
     units: JOI.string().required(),

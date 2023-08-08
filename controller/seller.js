@@ -1,9 +1,9 @@
 const { Sellers, validateSeller } = require("../model/sellerSchema")
+const { dateQuery } = require("../utils/dateQuery")
 
 exports.getSellers = async (req, res) => {
     try {
-        let { from, to } = req.query
-       const sellers = await Sellers.find(from && to && { createdAt: { $gte: new Date(from).toISOString(), $lt: new Date(to).toISOString() } }).sort({ _id: -1 })
+       const sellers = await Sellers.find(dateQuery(req.query)).sort({ _id: -1 })
        res
           .status(200)
           .json({variant: "success", msg: "Barcha sotuvchlar", innerData: sellers});

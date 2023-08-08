@@ -35,6 +35,7 @@ const SellerSchema = new Schema({
     },
     isActive: {
         type: Boolean,
+        default: true,
         require: true
     }
 })

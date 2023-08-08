@@ -1,4 +1,5 @@
-const { Expense, validateExpense } = require("../model/expenseSchema")
+const { Expense, validateExpense } = require("../model/expenseSchema");
+const { Sellers } = require("../model/sellerSchema");
 const {dateQuery} = require("../utils/dateQuery")
 
 exports.getExpenses = async (req, res) => {
@@ -17,6 +18,7 @@ exports.createExpense = async (req, res) => {
         if (error) {
             return res.status(400).json({ variant: "warning", msg: error.details[0].message, innerData: null });
         }
+        // let seller = Sellers.findById(req.body.sellerId)
         const newExpense = await Expense.create(req.body)
         res.status(201).json({ variant: "success", msg: "Xarajat Yaratildi", innerData: newExpense });
     }

@@ -3,6 +3,7 @@ const { Salaries, validateSalaries } = require("../model/salarySchema")
 exports.getSalary = async (req, res) => {
     try {
         const salaries = await Salaries.find().sort({ _id: -1 })
+        // await Salaries.deleteMany({})
         res
             .status(200)
             .json({ variant: "success", msg: "Barcha oyliklar to'plami", innerData: salaries })
