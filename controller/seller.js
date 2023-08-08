@@ -2,7 +2,8 @@ const { Sellers, validateSeller } = require("../model/sellerSchema")
 
 exports.getSellers = async (req, res) => {
     try {
-       const sellers = await Sellers.find() 
+        let { from, to } = req.query
+       const sellers = await Sellers.find(from && to && { createdAt: { $gte: new Date(from).toISOString(), $lt: new Date(to).toISOString() } }).sort({ _id: -1 })
        res
           .status(200)
           .json({variant: "success", msg: "Barcha sotuvchlar", innerData: sellers});
