@@ -18,7 +18,7 @@ const PaymentSchema = new Schema({
     createdAt: {
         type: String,
         required: false,
-        default: new Date()
+        default: new Date().toISOString()
     },
     comment: {
         type: String,
@@ -34,7 +34,7 @@ const validatePayment = (body) => {
         adminId: JOI.string().required(),
         amount: JOI.number().required(),
         createdAt: JOI.string(),
-        comment: JOI.string().required(),
+        comment: JOI.string()
     })
     return schema.validate(body)
 }
