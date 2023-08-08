@@ -1,8 +1,9 @@
 const { BuyOrSells, validateBuyOrSell } = require('../model/buyOrSellSchema');
+const {dateQuery} = require("../utils/dateQuery")
 
 exports.getBuyOrSells = async (req, res) => {
   try {
-    const buyOrSells = await BuyOrSells.find();
+    const buyOrSells = await BuyOrSells.find(dateQuery(req.query)).sort({_id:-1});
     res.status(200).json({
       variant: 'success',
       msg: 'Barcha kirim-chiqimlar',
