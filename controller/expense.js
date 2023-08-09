@@ -20,8 +20,7 @@ exports.createExpense = async (req, res) => {
             return res.status(400).json({ variant: "warning", msg: error.details[0].message, innerData: null });
         }
 
-        let { sellerId } = req.body
-        let { amount } = req.body
+        let { sellerId, amount } = req.body
         let seller = await Sellers.findById(sellerId)
 
         if (seller && seller.isActive === true) {

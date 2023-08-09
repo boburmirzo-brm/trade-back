@@ -9,7 +9,11 @@ const orderSchema = new Schema({
     createdAt: {
         type: String,
         required: false,
-        default: new Date()
+        default: new Date().toISOString()
+    },
+    updatedAt: {
+        type: String,
+        required: false
     },
     finalDate: {
         type: String,
