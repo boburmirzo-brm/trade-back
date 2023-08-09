@@ -19,6 +19,10 @@ const expenseSchema = new Schema({
         required: false,
         default: new Date().toISOString()
     },
+    updatedAt: {
+        type: String,
+        required: false
+    },
     comment: {
         type: String,
         required: false

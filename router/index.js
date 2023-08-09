@@ -17,7 +17,7 @@ const { getProducts, createProduct } = require('../controller/product');
 const { getPayments, createPayment } = require('../controller/payment');
 const { getCustomer, createCustomer } = require('../controller/customer');
 const { getOrders, createOrder } = require('../controller/order');
-const { getExpenses, createExpense } = require('../controller/expense');
+const { getExpenses, createExpense, updateExpense } = require('../controller/expense');
 
 // get -> get
 // delete -> delete
@@ -45,7 +45,7 @@ router.post('/create/order', createOrder);
 // Expense route
 router.get('/get/expenses', getExpenses);
 router.post('/create/expense', createExpense);
-// router.patch('/update/expense/:id', createExpense);
+router.patch('/update/expense/:id', updateExpense);
 // router.delete('/delete/expense/:id', createExpense);
 
 // Seller route
