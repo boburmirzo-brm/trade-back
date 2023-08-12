@@ -1,6 +1,7 @@
-const { Admins, validateAdmin } = require("../model/adminSchema");
-const { dateQuery } = require("../utils/dateQuery")
-const bcrypt = require("bcrypt")
+const { Admins, validateAdmin } = require("../model/adminSchema"),
+  { dateQuery } = require("../utils/dateQuery"),
+  bcrypt = require("bcrypt"),
+  JWT = require("jsonwebtoken")
 
 exports.getAdmins = async (req, res) => {
   try {
@@ -77,10 +78,13 @@ exports.signInAdmin = async (req, res) => {
     const checkUsername = await Admins.findOne({ username: username })
     const checkPassword = await Admins.findOne({ password: password })
     if (checkUsername && checkPassword) {
+      const TOKEN = JWT.sign({
+        username, _id: checkUsername._id
+      }, process.env.PRIVATE_KEY)
       return res.status(201).json({
         variable: "succes",
         msg: "Muvaffaqiyatli hisobga kirildi",
-        innerData: checkUsername
+        innerData: { data: checkUsername, token: TOKEN }
       })
     }
   }

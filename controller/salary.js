@@ -1,5 +1,5 @@
-const { Salaries, validateSalaries } = require("../model/salarySchema")
-const { dateQuery } = require("../utils/dateQuery")
+const { Salaries, validateSalaries } = require("../model/salarySchema"),
+    { dateQuery } = require("../utils/dateQuery")
 
 exports.getSalary = async (req, res) => {
     try {

@@ -11,7 +11,6 @@ const {
   getSalary,
   createSalary,
   updateSalary,
-  deleteSalary,
 } = require('../controller/salary');
 const { getProducts, createProduct } = require('../controller/product');
 const { getPayments, createPayment } = require('../controller/payment');
