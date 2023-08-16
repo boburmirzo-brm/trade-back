@@ -14,8 +14,19 @@ const {
   deleteSalary,
 } = require('../controller/salary');
 const { getProducts, createProduct } = require('../controller/product');
-const { getPayments, createPayment } = require('../controller/payment');
-const { getCustomer, createCustomer } = require('../controller/customer');
+
+const {
+  getPayments,
+  createPayment,
+  getOnePayment,
+} = require('../controller/payment');
+const {
+  getCustomer,
+  createCustomer,
+  updateCustomer,
+  getOneCustomer,
+  isActiveCustomer
+} = require('../controller/customer');
 const { getOrders, createOrder } = require('../controller/order');
 const { getExpenses, createExpense } = require('../controller/expense');
 
@@ -68,12 +79,14 @@ router.post('/create/product', createProduct);
 
 // Payment route
 router.get('/get/payment', getPayments);
+router.get('/get/payment/:id', getOnePayment);
 router.post('/create/payment', createPayment);
 
 // Customer route
 router.get('/get/customer', getCustomer);
+router.get('/get/customer/:id', getOneCustomer);
 router.post('/create/customer', createCustomer);
-// router.patch('/update/customer', createCustomer);
-// router.patch('/isactive/customer/:id', lorem); // !boolean
+router.patch('/update/customer/:id', updateCustomer);
+router.patch('/isactive/customer/:id', isActiveCustomer); // !boolean
 
 module.exports = router;
