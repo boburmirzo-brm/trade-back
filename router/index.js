@@ -5,6 +5,7 @@ const {
   getBuyOrSells,
   createBuyOrSell,
   deleteBuyOrSell,
+  // deleteAllBuyOrSells,
 } = require('../controller/buyOrSell');
 const { getAdmins, createAdmin, getSingleAdmin, signInAdmin, isActiceAdmin, updateAdmins } = require('../controller/admin');
 const {
@@ -42,6 +43,7 @@ router.patch("/isactive/admin/:id", isActiceAdmin)
 router.get('/get/buy-or-sell', getBuyOrSells);
 router.post('/create/buy-or-sell', createBuyOrSell);
 router.delete('/delete/buy-or-sell/:id', deleteBuyOrSell);
+// router.delete('/delete-all/buy-or-sell', deleteAllBuyOrSells);
 
 // Order route
 router.get('/get/orders', getOrders);
