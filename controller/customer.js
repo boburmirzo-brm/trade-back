@@ -78,7 +78,6 @@ exports.updateCustomer = async (req, res, next) => {
                 innerData: null
             });
         }
-
         const updatedCustomer = await Customers.findByIdAndUpdate(id, req.body)
         const updatedCustomerOne = await Customers.findById(id)
         await Customers.updateOne(
