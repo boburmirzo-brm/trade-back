@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose');
+const { Schema, model, default: mongoose } = require('mongoose');
 const JOI = require('joi');
 
 const buyOrSellSchema = new Schema(
@@ -10,18 +10,23 @@ const buyOrSellSchema = new Schema(
     },
     orderId: {
       type: String,
+      // type: mongoose.Schema.Types.ObjectId,
+      // ref: 'customers',
       required: function () {
         return this.status === 'output';
       },
     },
     sellerId: {
       type: String,
+      // type: mongoose.Schema.Types.ObjectId,
+      // ref: 'sellers',
       required: function () {
         return this.status === 'input';
       },
     },
-    productId : {
-      type: String,
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'product',
       required: true,
     },
     title: {
@@ -45,7 +50,8 @@ const buyOrSellSchema = new Schema(
       default: '',
     },
     adminId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'admins',
       required: true,
     },
     returnedItem: {
