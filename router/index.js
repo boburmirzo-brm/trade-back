@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { getSellers, createSeller } = require('../controller/seller');
+const { getSellers, createSeller, getSellersById, patchSeller } = require('../controller/seller');
 const {
   getBuyOrSells,
   createBuyOrSell,
@@ -50,9 +50,9 @@ router.post('/create/expense', createExpense);
 
 // Seller route
 router.get('/get/seller', getSellers);
-// router.get('/single/seller/:id', getSellers); // single seller
+ router.get('/single/seller/:id', getSellersById); // single seller
 router.post('/create/seller', createSeller);
-// router.patch('/update/seller/:id', lorem);
+ router.patch('/update/seller/:id', patchSeller);
 // router.patch('/isactive/seller/:id', lorem); // !boolean
 
 // Salary route

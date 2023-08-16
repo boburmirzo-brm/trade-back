@@ -15,6 +15,21 @@ exports.getSellers = async (req, res) => {
     }
 }
 
+exports.getSellersById = async (req, res) => {
+    try {
+        let id = req.params.id
+        const sellers = await Sellers.findById(id)
+        res
+          .status(200)
+          .json({variant: "success", msg: "Sotuvchi topildi", innerData: sellers});
+    } 
+    catch {
+        res
+           .status(500)
+           .json({variant: "error", msg: "Serverda xatolik kuzatildi", innerData: null});
+    }
+}
+
 exports.createSeller = async (req, res) => {
     try {
         const { error } = validateSeller(req.body)
@@ -35,3 +50,30 @@ exports.createSeller = async (req, res) => {
            .json({variant: "error", msg: "Serverda xatolik kuzatildi", innerData: null});
     }
 }
+
+//exports.patchSeller = async(req, res) => {
+//    try{
+//        if (error) {
+//            res
+//                .status(404)
+//                .json({variant: "success", msg: error.details[0].message, innerData: null});   
+//        }
+//
+//        let id = req.params.id
+//        let info = req.body
+//        let updateInfo = await Sellers.findByIdAndUpdate(id, {
+//            ...info
+//        })
+//
+//        res
+//        .status(200)
+//        .json({variant: "success", msg: "Sotuvchi muvaffaqiyatli qo'shildi", innerData: updateInfo});
+//
+//
+//    }
+//    catch {
+//        res
+//        .status(500)
+//        .json({variant: "error", msg: "Serverda xatolik kuzatildi", innerData: null});
+//    }
+//}
