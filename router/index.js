@@ -13,11 +13,21 @@ const {
   createSalary,
   updateSalary,
 } = require('../controller/salary');
-const { getProducts, createProduct } = require('../controller/product');
-const { getPayments, createPayment } = require('../controller/payment');
-const { getCustomer, createCustomer } = require('../controller/customer');
 const { getOrders, createOrder, updateOrder } = require('../controller/order');
 const { getExpenses, createExpense, updateExpense } = require('../controller/expense');
+
+const {
+  getPayments,
+  createPayment,
+} = require('../controller/payment');
+const {
+  getCustomer,
+  createCustomer,
+  updateCustomer,
+  getOneCustomer,
+  isActiveCustomer
+} = require('../controller/customer');
+const {createProduct,getProducts} = require("../controller/product")
 
 // get -> get
 // delete -> delete
@@ -30,9 +40,9 @@ router.get('/get/admin', getAdmins);
 // router.get('/single/admin/:id', getAdmins);
 router.get("/get/single/admin/:id", getSingleAdmin)
 // router.create("/create/admin",createAdmin);
-router.post('/create/admin', createAdmin);
+router.post('/admin/sign-up', createAdmin);
 // router.post('/sign-in/admin', createAdmin);
-router.post("/sign-in/admin", signInAdmin)
+router.post("/admin/sign-in", signInAdmin)
 // router.patch('/update/admin', createAdmin);
 router.patch("/update/admin/:id", updateAdmins)
 // router.patch('/isactive/admin', createAdmin);
@@ -80,8 +90,10 @@ router.post('/create/payment', createPayment);
 
 // Customer route
 router.get('/get/customer', getCustomer);
+router.get('/get/customer/:id', getOneCustomer);
 router.post('/create/customer', createCustomer);
-// router.patch('/update/customer', createCustomer);
-// router.patch('/isactive/customer/:id', lorem); // !boolean
+router.patch('/update/customer/:id', updateCustomer);
+router.patch('/isactive/customer/:id', isActiveCustomer); // !boolean
 
 module.exports = router;
+

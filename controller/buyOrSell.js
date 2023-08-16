@@ -102,13 +102,13 @@ exports.createBuyOrSell = async (req, res) => {
         variant: 'warning',
         msg: "Mahsulot topilmadi. Noto'gri Id kiritilgan.",
       });
-    let totalPriceInStore = product.quontity * product.price;
+    let totalPriceInStore = product.quantity * product.price;
     // 13 000 * 10 = 130 000
     let newProductPrice = price * quantity;
     // 15 000 * 100 = 1 500 000
     let total = totalPriceInStore + newProductPrice;
     // 130 000 + 1 500 000 = 1 630 000
-    let totalQuantity = product.quontity + quantity;
+    let totalQuantity = product.quantity + quantity;
     let singlePrice = total / totalQuantity;
     // 1 630 000 / 110 = 14 818
 

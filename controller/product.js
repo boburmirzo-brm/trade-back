@@ -1,9 +1,9 @@
 const { Products, validationProduct } = require("../model/productSchema");
+const { dateQuery } = require("../utils/dateQuery");
 
 exports.getProducts = async (req, res) => {
     try {
-        const { from, to } = req.query;
-        const products = await Products.find(from && to && { createdAt: { $gte: new Date(from).toISOString(), $lte: new Date(to).toISOString() } }).sort({ _id: -1 });
+        const products = await Products.find(dateQuery(req.query)).sort({_id: -1});
         res.status(200).json({ variant: "success", msg: "Barcha Mahsulotlar", innerData: products });
     }
     catch {

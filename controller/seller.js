@@ -17,7 +17,7 @@ exports.getSellers = async (req, res) => {
 
 exports.getSellersById = async (req, res) => {
     try {
-        let id = req.params.id
+        let { id } = req.params
         const sellers = await Sellers.findById(id)
         res
           .status(200)
@@ -53,18 +53,17 @@ exports.createSeller = async (req, res) => {
 
 exports.patchSeller = async(req, res) => {
    try{
+       const { error } = validateSeller(req.body)
        if (error) {
            res
                .status(404)
-               .json({variant: "success", msg: error.details[0].message, innerData: null});   
+               .json({variant: "warning", msg: error.details[0].message, innerData: null});   
        }
 
        let id = req.params.id
-       let info = req.body
        let updateInfo = await Sellers.findByIdAndUpdate(id, {
-           ...info
+           ...req.body
        })
-
        res
        .status(200)
        .json({variant: "success", msg: "Sotuvchi muvaffaqiyatli qo'shildi", innerData: updateInfo});

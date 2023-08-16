@@ -32,6 +32,11 @@ const CustomerSchema = new Schema({
         required: false,
         default: new Date().toISOString()
     },
+    updatedAt: {
+        type: String,
+        required: false,
+        default: "Tahrirlanmagan"
+    },
     isActive: {
         type: Boolean,
         default: true,
@@ -49,9 +54,9 @@ const validateCustomer = (body) => {
         address: JOI.string().required(),
         budget: JOI.number().required(),
         adminId: JOI.string().required(),
-        createdAt: JOI.string(),
         isActive: JOI.boolean().required(),
-
+        createdAt: JOI.string(),
+        updatedAt: JOI.string()
     })
     return schema.validate(body)
 }

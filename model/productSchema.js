@@ -10,7 +10,7 @@ const productSchema = new Schema({
         type: Number,
         required: true
     },
-    quontity: {
+    quantity: {
         type: Number,
         required: true
     },
@@ -40,7 +40,7 @@ const validationProduct = (body) => {
     const schema = Joi.object({
         title: Joi.string().required(),
         price: Joi.number().required(),
-        quontity: Joi.number().required(),
+        quantity: Joi.number().required(),
         category: Joi.string().required(),
         units: Joi.string().required(),
         createdAt: Joi.string(),
