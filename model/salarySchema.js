@@ -5,20 +5,20 @@ const { Schema, model } = require("mongoose"),
 const salarySchema = new Schema({
     adminId: {
         type: String,
-        require: true
+        required: true
     },
     amount: {
         type: Number,
-        require: true
+        required: true
     },
     createdAt: {
         type: String,
-        require: false,
+        required: false,
         default: new Date().toISOString()
     },
     comment: {
         type: String,
-        require: false
+        required: false
     }
 })
 
