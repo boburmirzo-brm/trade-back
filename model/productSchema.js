@@ -24,10 +24,13 @@ const productSchema = new Schema({
     },
     createdAt: {
         type: String,
-        required: true,
+        required: false,
         default: new Date().toISOString()
     },
-    comment: String,
+    comment: {
+        type: String,
+        required: false
+    },
     adminId: {
         type: String,
         required: true

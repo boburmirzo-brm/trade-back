@@ -81,7 +81,7 @@ router.patch('/update/salary/:id', updateSalary);
 // Order route
 
 //? product route
-router.get('/get/product', getProducts);
+router.get('/get/products', getProducts);
 router.post('/create/product', createProduct);
 
 // Payment route
