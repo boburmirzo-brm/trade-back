@@ -19,6 +19,11 @@ exports.getSellersById = async (req, res) => {
     try {
         let { id } = req.params
         const sellers = await Sellers.findById(id)
+        if (!sellers) {
+            return res
+                    .status(404)
+                    .json({ variant: "warning", msg: "Sotuvchi topilmadi", innerData: null});
+        }
         res
           .status(200)
           .json({variant: "success", msg: "Sotuvchi topildi", innerData: sellers});
@@ -50,29 +55,59 @@ exports.createSeller = async (req, res) => {
            .json({variant: "error", msg: "Serverda xatolik kuzatildi", innerData: null});
     }
 }
+exports.updateSeller = async (req, res) => {
+    try {
+        const { id } = req.params
+       
+        const updateSeller = await Sellers.findByIdAndUpdate(id, req.body)
+        res
+            .status(200)
+            .json({variant: "success", msg: "Sotuvchi muvaffaqiyatli yangilandi", innerData: updateSeller });
+    }
+    catch {
+        res
+            .status(500)
+            .json({variant: "error", msg: "server error", innerData: null});
+    }
+};
 
-exports.patchSeller = async(req, res) => {
-   try{
-       const { error } = validateSeller(req.body)
-       if (error) {
-           res
-               .status(404)
-               .json({variant: "warning", msg: error.details[0].message, innerData: null});   
-       }
-
-       let id = req.params.id
-       let updateInfo = await Sellers.findByIdAndUpdate(id, {
-           ...req.body
-       })
-       res
-       .status(200)
-       .json({variant: "success", msg: "Sotuvchi muvaffaqiyatli qo'shildi", innerData: updateInfo});
-
-
-   }
-   catch {
-       res
-       .status(500)
-       .json({variant: "error", msg: "Serverda xatolik kuzatildi", innerData: null});
-   }
+exports.isActiveSeller = async (req, res) => {
+    try {
+        const { id } = req.params
+        const updateIsActive = await Sellers.findById(id)
+        await Sellers.updateOne(
+            { _id: id },
+            {
+                $set: {
+                    isActive: !(updateIsActive.isActive)
+                }
+            }
+        )
+        res.status(200).json({
+            variant: "success",
+            msg: "Arxivga solindi yoki chiqarildi",
+            innerData: updateIsActive
+        })
+    }
+    catch {
+        res.status(500).json({
+            variant: "error",
+            msg: "Serverda xatolik",
+            innerData: null
+        });
+    }
 }
+
+exports.deleteSeller = async (req, res) => {
+    try {
+      const { id } = req.params;
+      await Sellers.findByIdAndDelete(id, req.body);
+      res
+            .status(200)
+            .json({ variant: 'success', msg: "Sotuvchi muvaffaqiyatli o'chirildi", innerData: null});
+    } catch {
+      res
+          .status(500)
+          .json({variant: 'error', msg: 'server error', innerData: null,});
+    }
+  };
