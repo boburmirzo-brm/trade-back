@@ -59,7 +59,7 @@ exports.updateSeller = async (req, res) => {
     try {
         const { id } = req.params
        
-        const updateSeller = await Sellers.findByIdAndUpdate(id, req.body)
+        const updateSeller = await Sellers.findByIdAndUpdate(id, req.body, {new: true})
         res
             .status(200)
             .json({variant: "success", msg: "Sotuvchi muvaffaqiyatli yangilandi", innerData: updateSeller });

@@ -79,7 +79,7 @@ exports.signInAdmin = async (req, res) => {
     // const checkPassword = await Admins.findOne({ password: password })
     if (checkUsername && checkUsername.password === password) {
       const TOKEN = JWT.sign({
-        username, _id: checkUsername._id
+        username, _id: checkUsername._id, isAdmin: true, isOwner: false
       }, process.env.PRIVATE_KEY)
       return res.status(201).json({
         variant: "succes",
@@ -113,13 +113,13 @@ exports.updateAdmins = async (req, res) => {
       }
     }
 
-    await Admins.updateOne({ _id: id }, {
-      $set: {
-        ...req.body
+    let updatedAdminOne = await Admins.findOneAndUpdate({ _id: id },
+      req.body,
+      {
+        new:true
       }
-    })
-
-    const updatedAdminOne = await Admins.find({ _id: id })
+    )
+    // const updatedAdminOne = await Admins.find({ _id: id })
     return res.status(201).json({
       variant: "succes",
       msg: "Ma'lumotlar yangilandi",

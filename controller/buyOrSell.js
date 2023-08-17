@@ -25,6 +25,13 @@ exports.getBuyOrSells = async (req, res) => {
   }
 };
 
+// status - input
+// sellerId
+// productId
+
+// update --> Seller budget + price * quantity
+// update --> Product price - quantity
+// create --> buyOrSell
 exports.createBuyOrSell = async (req, res) => {
   try {
     const { error } = validateBuyOrSell(req.body);
