@@ -100,8 +100,8 @@ exports.signInAdmin = async (req, res) => {
 exports.updateAdmins = async (req, res) => {
   try {
     const { id } = req.params
-    const admin = await Admins.findById(id)
     const { username } = req.body
+    const admin = await Admins.findById(id)
     const checkUsername = await Admins.findOne({ username })
     if (checkUsername && admin) {
       if (admin.username !== checkUsername.username) {
