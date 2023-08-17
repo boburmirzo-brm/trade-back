@@ -37,6 +37,10 @@ const buyOrSellSchema = new Schema(
       type: Number,
       required: true,
     },
+    originalPrice: {
+      type: Number,
+      required: true,
+    },
     quantity: {
       type: Number,
       required: true,
@@ -81,6 +85,7 @@ const validateBuyOrSell = (body) => {
     title: JOI.string().required(),
     productId: JOI.string().required(),
     price: JOI.number().required(),
+    originalPrice: JOI.number().required(),
     quantity: JOI.number().required(),
     units: JOI.string().required(),
     comment: JOI.string().allow(''),

@@ -41,14 +41,12 @@ exports.createSalary = async (req, res) => {
 exports.updateSalary = async (req, res) => {
     try {
         const { id } = req.params
-        const { adminId, amount, comment } = req.body
         await Salaries.updateOne({ _id: id }, {
             $set: {
-                adminId, amount, comment
+                ...req.body
             }
         })
         const updatedSalaryOne = await Salaries.find({ _id: id })
-
         return res
             .status(200)
             .json({ variant: "succes", msg: "Ma'lumot qayta tahrirlandi", innerData: updatedSalaryOne })
