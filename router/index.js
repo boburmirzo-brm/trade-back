@@ -27,7 +27,7 @@ const {
   getOneCustomer,
   isActiveCustomer
 } = require('../controller/customer');
-const {createProduct,getProducts} = require("../controller/product")
+const { createProduct, getProducts } = require("../controller/product")
 
 // get -> get
 // delete -> delete
@@ -68,9 +68,9 @@ router.patch('/update/expense/:id', updateExpense);
 
 // Seller route
 router.get('/get/seller', getSellers);
- router.get('/single/seller/:id', getSellersById); // single seller
+router.get('/single/seller/:id', getSellersById); // single seller
 router.post('/create/seller', createSeller);
- router.patch('/update/seller/:id', patchSeller);
+router.patch('/update/seller/:id', patchSeller);
 // router.patch('/isactive/seller/:id', lorem); // !boolean
 
 // Salary route

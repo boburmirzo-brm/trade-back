@@ -76,13 +76,13 @@ exports.signInAdmin = async (req, res) => {
   try {
     const { username, password } = req.body
     const checkUsername = await Admins.findOne({ username: username })
-    const checkPassword = await Admins.findOne({ password: password })
-    if (checkUsername && checkPassword) {
+    // const checkPassword = await Admins.findOne({ password: password })
+    if (checkUsername && checkUsername.password === password) {
       const TOKEN = JWT.sign({
         username, _id: checkUsername._id
       }, process.env.PRIVATE_KEY)
       return res.status(201).json({
-        variable: "succes",
+        variant: "succes",
         msg: "Muvaffaqiyatli hisobga kirildi",
         innerData: { data: checkUsername, token: TOKEN }
       })
@@ -90,7 +90,7 @@ exports.signInAdmin = async (req, res) => {
   }
   catch {
     res.status(500).json({
-      variable: "error",
+      variant: "error",
       msg: "username yoki password hato kiritildi",
       innerData: null
     })
@@ -100,28 +100,28 @@ exports.signInAdmin = async (req, res) => {
 exports.updateAdmins = async (req, res) => {
   try {
     const { id } = req.params
-    const { fname, lname, phones, role, username, password } = req.body
+    const admin = await Admins.findById(id)
+    const { username } = req.body
     const checkUsername = await Admins.findOne({ username })
-    if (checkUsername) {
-      return res.status(500).json({
-        variable: "error",
-        msg: "Username oldin ishlatilgan",
-        innerData: null
-      })
+    if (checkUsername && admin) {
+      if (admin.username !== checkUsername.username) {
+        return res.status(500).json({
+          variant: "error",
+          msg: "Username oldin ishlatilgan",
+          innerData: null
+        })
+      }
     }
+
     await Admins.updateOne({ _id: id }, {
       $set: {
-        fname,
-        lname,
-        phones,
-        role,
-        username,
-        password
+        ...req.body
       }
     })
+
     const updatedAdminOne = await Admins.find({ _id: id })
     return res.status(201).json({
-      variable: "succes",
+      variant: "succes",
       msg: "Ma'lumotlar yangilandi",
       innerData: updatedAdminOne
     })
@@ -129,7 +129,7 @@ exports.updateAdmins = async (req, res) => {
   }
   catch {
     res.status(500).json({
-      variable: "error",
+      variant: "error",
       msg: "Ma'lumotlarda Xatolik",
       innerData: null
     })
@@ -146,14 +146,14 @@ exports.isActiceAdmin = async (req, res) => {
       }
     })
     res.status(201).json({
-      variable: "succes",
+      variant: "succes",
       msg: "Muvaffaqiyatli o'zgartirildi",
       innerData: isActiceAdmin
     })
   }
   catch {
     res.status(500).json({
-      variable: "error",
+      variant: "error",
       msg: "Ma'lumotlarda Xatolik",
       innerData: null
     })
