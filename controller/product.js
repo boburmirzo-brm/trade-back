@@ -30,10 +30,8 @@ exports.createProduct = async (req, res) => {
             const productId = newProduct._id.toString()
             const originalPrice = 0
             const returnedItem = false
-
             const newBuyOrSell = { status, sellerId, orderId, productId, adminId, title, price, quantity, units, comment, originalPrice, returnedItem }
             const { error } = validateBuyOrSell(newBuyOrSell)
-            
             if(error){
                 return res.status(400).json({ variant: "warning", msg: error.details[0].message, innerData: null });
             }
