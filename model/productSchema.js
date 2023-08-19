@@ -35,6 +35,10 @@ const productSchema = new Schema({
         type: String,
         required: true
     },
+    sellerId: {
+        type: String,
+        required: false
+    }
 });
 
 const Products = model("product", productSchema);
@@ -48,7 +52,8 @@ const validationProduct = (body) => {
         units: Joi.string().required(),
         createdAt: Joi.string(),
         comment: Joi.string(),
-        adminId: Joi.string().required(),
+        adminId: Joi.string(),
+        sellerId: Joi.string()
     });
     return schema.validate(body);
 }
