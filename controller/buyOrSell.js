@@ -32,6 +32,66 @@ exports.getBuyOrSells = async (req, res) => {
 // update --> Seller budget + price * quantity
 // update --> Product price - quantity
 // create --> buyOrSell
+
+exports.createBuyOrSellInput = async (req, res) => {
+  try {
+    const { error } = validateBuyOrSell(req.body);
+    if (error) {
+      return res.status(400).json({
+        variant: 'warning',
+        msg: error.details[0].message,
+        innerData: null,
+      });
+    }
+
+    const { status, sellerId, orderId, price, quantity, productId } = req.body;
+
+    if (status !== 'input' || sellerId === '' || orderId !== '')
+      return res.status(400).json({
+        variant: 'warning',
+        msg: "Status yoki Sotuvchi Idsi notog'ri kiritilgan.",
+        innerData: null,
+      });
+
+    await Sellers.findByIdAndUpdate(sellerId, {
+      $inc: { budget: price * quantity },
+    });
+
+    const product = await Products.findById(productId);
+    if (!product)
+      return res.status(400).json({
+        variant: 'warning',
+        msg: "Mahsulot topilmadi. Noto'gri Id kiritilgan.",
+      });
+
+    let totalPriceInStore = product.quantity * product.price;
+    let newProductPrice = price * quantity;
+    let total = totalPriceInStore + newProductPrice;
+    let totalQuantity = product.quantity + quantity;
+    let singlePrice = total / totalQuantity;
+
+    await Products.findByIdAndUpdate(productId, {
+      price: singlePrice,
+      $inc: { quantity: quantity },
+    });
+
+    const BuyOrSell = await BuyOrSells.create(req.body);
+
+    res.status(201).json({
+      variant: 'success',
+      msg: 'Kirim-chiqim muvaffaqiyatli yaratildi. Sotuvchining budgeti va mahsulot narxi yangilandi.',
+      innerData: BuyOrSell,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      variant: 'error',
+      msg: 'Serverda hatolik yuz berdi.',
+      innerData: null,
+    });
+  }
+};
+
 exports.createBuyOrSell = async (req, res) => {
   try {
     const { error } = validateBuyOrSell(req.body);

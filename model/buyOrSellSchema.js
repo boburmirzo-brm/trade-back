@@ -39,7 +39,9 @@ const buyOrSellSchema = new Schema(
     },
     originalPrice: {
       type: Number,
-      required: true,
+      required: function () {
+        return this.status === 'output';
+      },
     },
     quantity: {
       type: Number,
@@ -54,9 +56,8 @@ const buyOrSellSchema = new Schema(
       default: '',
     },
     adminId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'admins',
-      required: true,
+      type: String,
+      // required: true,
     },
     returnedItem: {
       type: Boolean,
@@ -85,11 +86,15 @@ const validateBuyOrSell = (body) => {
     title: JOI.string().required(),
     productId: JOI.string().required(),
     price: JOI.number().required(),
-    originalPrice: JOI.number().required(),
+    originalPrice: JOI.when('status', {
+      is: 'output',
+      then: JOI.number().required(),
+      otherwise: JOI.number().allow(0),
+    }),
     quantity: JOI.number().required(),
     units: JOI.string().required(),
     comment: JOI.string().allow(''),
-    adminId: JOI.string().required(),
+    adminId: JOI.string().allow(''),
     returnedItem: JOI.boolean().required(),
   });
 
