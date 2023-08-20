@@ -67,7 +67,7 @@ exports.createCustomer = async (req, res) => {
     }
 };
 
-exports.updateCustomer = async (req, res, next) => {
+exports.updateCustomer = async (req, res) => {
     try {
         const { id } = req.params
         const oneCustomer = await Customers.findById(id)
@@ -79,15 +79,6 @@ exports.updateCustomer = async (req, res, next) => {
             });
         }
         const updatedCustomer = await Customers.findByIdAndUpdate(id, req.body)
-        // const updatedCustomerOne = await Customers.findById(id)
-        // await Customers.updateOne(
-        //     { _id: id },
-        //     {
-        //         $set: {
-        //             updatedAt: updatedCustomerOne.updatedAt = new Date().toISOString()
-        //         }
-        //     }
-        // )
         res.status(200).json({
             variant: "success",
             msg: "Mijoz muvaffaqiyatli tahrirlandi",
