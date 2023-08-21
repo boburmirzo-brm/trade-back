@@ -256,3 +256,8 @@ exports.deleteBuyOrSell = async (req, res) => {
 //     });
 //   }
 // };
+
+
+// price , quantity - update
+// product -> quantity, price -> update
+// seller -> budget -> update

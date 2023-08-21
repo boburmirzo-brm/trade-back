@@ -78,7 +78,7 @@ exports.updateCustomer = async (req, res) => {
                 innerData: null
             });
         }
-        const updatedCustomer = await Customers.findByIdAndUpdate(id, req.body)
+        const updatedCustomer = await Customers.findByIdAndUpdate(id, {...req.body, budget: oneCustomer.budget}, {new:true})
         res.status(200).json({
             variant: "success",
             msg: "Mijoz muvaffaqiyatli tahrirlandi",

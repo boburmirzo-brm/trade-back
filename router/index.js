@@ -111,8 +111,6 @@ router.patch('/isactive/seller/:id', isActiveSeller); // !boolean
 // delete
 router.delete('/delete/seller/:id', deleteSeller);
 router.post('/create/seller', createSeller);
-router.patch('/update/seller/:id', patchSeller);
-// router.patch('/isactive/seller/:id', lorem); // !boolean
 
 // Salary route
 router.get('/get/salary', getSalary);

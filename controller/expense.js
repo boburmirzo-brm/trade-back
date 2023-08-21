@@ -35,7 +35,7 @@ exports.createExpense = async (req, res) => {
         const updateSeller = await Sellers.findById(sellerId);
         await Sellers.updateOne(
             { _id: sellerId },
-            {$set: { budget: updateSeller.budget + parseInt(amount)},}
+            {$set: { budget: updateSeller.budget - amount},}
         );
         const newExpense = await Expense.create(req.body);
         res

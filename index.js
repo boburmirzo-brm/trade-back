@@ -3,11 +3,13 @@ const express = require("express"),
     dotenv = require("dotenv"),
     { config } = dotenv,
     mongoose = require("mongoose"),
-    app = express()
+    app = express(),
+    morgan = require("morgan")
 
 
 app.use(express.json())
 app.use(cors())
+app.use(morgan("dev"))
 config()
 
 
