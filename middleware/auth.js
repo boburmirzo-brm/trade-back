@@ -3,7 +3,7 @@ const { config } = require("dotenv")
 
 config()
 
-export default function auth(req, res, next) {
+exports.auth = (req, res, next) => {
     const TOKEN = req.header("token")
     if (!TOKEN) {
         return res.status(401).json({

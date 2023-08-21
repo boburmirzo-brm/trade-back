@@ -35,7 +35,12 @@ const {
   updateExpense,
 } = require('../controller/expense');
 
-const { getPayments, createPayment } = require('../controller/payment');
+const {
+  getPayments,
+  getOnePayment,
+  createPayment,
+  updatePayment,
+} = require('../controller/payment');
 const {
   getCustomer,
   createCustomer,
@@ -105,6 +110,9 @@ router.patch('/update/seller/:id', updateSeller);
 router.patch('/isactive/seller/:id', isActiveSeller); // !boolean
 // delete
 router.delete('/delete/seller/:id', deleteSeller);
+router.post('/create/seller', createSeller);
+router.patch('/update/seller/:id', patchSeller);
+// router.patch('/isactive/seller/:id', lorem); // !boolean
 
 // Salary route
 router.get('/get/salary', getSalary);
@@ -119,7 +127,9 @@ router.post('/create/product', createProduct);
 
 // Payment route
 router.get('/get/payment', getPayments);
+router.get('/get/payment/:id', getOnePayment);
 router.post('/create/payment', createPayment);
+router.patch('/update/payment/:id', updatePayment);
 
 // Customer route
 router.get('/get/customer', getCustomer);
