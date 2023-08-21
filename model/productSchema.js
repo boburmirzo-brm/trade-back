@@ -24,14 +24,21 @@ const productSchema = new Schema({
     },
     createdAt: {
         type: String,
-        required: true,
+        required: false,
         default: new Date().toISOString()
     },
-    comment: String,
+    comment: {
+        type: String,
+        required: false
+    },
     adminId: {
         type: String,
         required: true
     },
+    sellerId: {
+        type: String,
+        required: false
+    }
 });
 
 const Products = model("product", productSchema);
@@ -45,7 +52,8 @@ const validationProduct = (body) => {
         units: Joi.string().required(),
         createdAt: Joi.string(),
         comment: Joi.string(),
-        adminId: Joi.string().required(),
+        adminId: Joi.string(),
+        sellerId: Joi.string()
     });
     return schema.validate(body);
 }

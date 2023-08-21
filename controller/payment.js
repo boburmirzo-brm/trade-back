@@ -91,7 +91,7 @@ exports.updatePayment = async (req, res) => {
                 innerData: null
             });
         }
-        const { customerId, amount } = req.body
+        const { customerId, amount, comment } = req.body
         const updatedCustomerOne = await Customers.findById(customerId)
 
         await Customers.updateOne(
@@ -106,7 +106,8 @@ exports.updatePayment = async (req, res) => {
             { _id: id },
             {
                 $set: {
-                    amount: onePayment.amount - amount
+                    amount: onePayment.amount - amount,
+                    comment
                 }
             }
         )
