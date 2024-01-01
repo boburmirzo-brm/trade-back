@@ -1,6 +1,6 @@
 const { Admins, validateAdmin } = require("../model/adminSchema"),
   { dateQuery } = require("../utils/dateQuery"),
-  bcrypt = require("bcrypt"),
+  bcrypt = require("bcryptjs"),
   JWT = require("jsonwebtoken")
 
 exports.getAdmins = async (req, res) => {
@@ -20,10 +20,17 @@ exports.getSingleAdmin = async (req, res) => {
   try {
     const { id } = req.params
     const singleAdmin = await Admins.findOne({ _id: id })
+    if(!singleAdmin){
+      return  res
+        .status(404)
+        .json({
+          variant: "error", msg: "Admin topilmadi", innerData: null
+        })
+    }
     res
       .status(200)
       .json({
-        variant: "succes", msg: "Muvaffaqiyatli ma'lumot topildi", innerData: singleAdmin
+        variant: "success", msg: "Muvaffaqiyatli ma'lumot topildi", innerData: singleAdmin
       })
   }
   catch (error) {

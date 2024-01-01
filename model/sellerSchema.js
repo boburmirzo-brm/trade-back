@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose"),
-    JOI = require("joi")
+    JOI = require("joi"),
+    {timeZone} = require("../utils/timeZone")
 
 
 const SellerSchema = new Schema({
@@ -26,7 +27,7 @@ const SellerSchema = new Schema({
     createdAt: {
         type: String,
         require: false,
-        default: new Date().toISOString()
+        default:()=> timeZone()
     },
     // adminIn - xato bulib qopti
     adminId: {
@@ -35,8 +36,7 @@ const SellerSchema = new Schema({
     },
     isActive: {
         type: Boolean,
-        default: true,
-        require: true
+        default: true
     }
 })
 
@@ -51,7 +51,7 @@ const validateSeller = (body) => {
       budget: JOI.number().required(),
       createdAt: JOI.string(),
       adminId: JOI.string().required(),
-      isActive: JOI.boolean().required()
+      isActive: JOI.boolean()
   })
   return schema.validate(body)
 }

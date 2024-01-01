@@ -1,124 +1,227 @@
 const { Customers } = require("../model/customerSchema");
 const { Payments, validatePayment } = require("../model/paymentSchema");
-const { dateQuery } = require("../utils/dateQuery")
+const { dateQuery } = require("../utils/dateQuery");
+const mongoose = require("mongoose");
 
-exports.getOnePayment = async (req, res) => {
-    try {
-        const onePayment = await Payments.findById(req.params.id)
-        if (!onePayment) {
-            return res.status(404).json({
-                variant: "warning",
-                msg: "To'lov topilmadi",
-                innerData: null
-            });
-        }
-        res.status(200).json({
-            variant: "success",
-            msg: "To'lov topildi",
-            innerData: updatedCustomer
-        });
-    }
-    catch {
-        res.status(500).json({
-            variant: "error",
-            msg: "Serverda xatolik",
-            innerData: null
-        })
-    }
-}
+const handleResponse = (res, status, variant, msg, innerData, totalCount) => {
+  res.status(status).json({
+    variant,
+    msg,
+    innerData,
+    totalCount,
+  });
+};
+
 exports.getPayments = async (req, res) => {
-    try {
-        const payments = await Payments.find(dateQuery(req.query)).sort({ _id: -1 });
-        res
-            .status(200)
-            .json({ variant: "success", msg: "Barcha to'lovlar", innerData: payments });
-    } catch {
-        res
-            .status(500)
-            .json({ variant: "error", msg: "server error", innerData: null });
+  try {
+    const { count = 1, pagination = 10 } = req.query;
+    const payments = await Payments.find(dateQuery(req.query))
+      .populate([
+        { path: "customerId", select: ["fname", "lname"] },
+        { path: "adminId", select: ["fname", "lname"] }
+      ])
+      .sort({
+        createdAt: -1,
+      });
+  
+
+    if (!payments) {
+      return handleResponse(res, 404, "warning", "To'lovlar topilmadi", null);
     }
+
+    handleResponse(
+      res,
+      200,
+      "success",
+      "Barcha to'lovlar",
+      payments.slice(0, count * pagination),
+      payments.length
+    );
+  } catch (error) {
+    handleResponse(res, 500, "error", "Serverda xatolik", null);
+  }
+};
+
+exports.getPaymentByCustomerId = async (req, res) => {
+  try {
+    const { customerId } = req.params;
+    const { count = 1, pagination = 10 } = req.query;
+
+    const payments = await Payments.find({
+      customerId,
+      ...dateQuery(req.query),
+    }).sort({ createdAt: -1 });
+
+    if (!payments) {
+      return handleResponse(res, 404, "warning", "To'lov topilmadi", null);
+    }
+
+    handleResponse(
+      res,
+      200,
+      "success",
+      "Barcha to'lovlar",
+      payments.slice(0, count * pagination),
+      payments.length
+    );
+  } catch (error) {
+    handleResponse(res, 500, "error", "Serverda xatolik", null);
+  }
 };
 
 exports.createPayment = async (req, res) => {
-    try {
-        const { error } = validatePayment(req.body);
-        if (error) {
-            return res.status(400).json({
-                variant: "warning",
-                msg: error.details[0].message,
-                innerData: null,
-            });
-        }
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      const { error } = validatePayment(req.body);
+      if (error) {
+        return handleResponse(
+          res,
+          400,
+          "warning",
+          error.details[0].message,
+          null
+        );
+      }
 
-        const { customerId, amount } = req.body
-        const updatedCustomerOne = await Customers.findById(customerId)
+      const { customerId, amount } = req.body;
 
-        await Customers.updateOne(
-            { _id: customerId },
-            {
-                $set: {
-                    budget: updatedCustomerOne.budget + amount
-                }
-            }
-        )
-        const newPayment = await Payments.create(req.body);
-        res.status(201).json({
-            variant: "success",
-            msg: "To'lov muvaffaqiyatli qo'shildi",
-            innerData: newPayment,
-        });
-    } catch {
-        res.status(500).json({
-            variant: "error",
-            msg: "server error",
-            innerData: null,
-        });
-    }
+      // Update customer's budget
+      await Customers.findByIdAndUpdate(
+        customerId,
+        {
+          $inc: {
+            budget: +amount,
+          },
+        },
+        { session }
+      );
+
+      // Create new payment
+      const newPayment = await Payments.create(req.body);
+
+      handleResponse(
+        res,
+        201,
+        "success",
+        "Payment successfully added",
+        newPayment
+      );
+    });
+  } catch (error) {
+    handleResponse(res, 500, "error", "Server error", null);
+  } finally {
+    session.endSession();
+  }
 };
 
 exports.updatePayment = async (req, res) => {
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      const { id } = req.params;
+      const { customerId, amount, comment } = req.body;
 
-    // const oldPayment = await Payments.findById(paymentId)
-    // 100 000 - 150 000 = -50 000
-    // let result = oldPayment.amount - amount
-    try {
-        const { id } = req.params
-        const onePayment = await Payments.findById(id)
-        if (!onePayment) {
-            return res.status(404).json({
-                variant: "warning",
-                msg: "To'lov topilmadi",
-                innerData: null
-            });
-        }
-        const { customerId, amount, comment } = req.body
-        // const updatedCustomerOne = await Customers.findById(customerId)
+      // Validate IDs
+      if ([id, customerId].some((el) => el.length !== 24)) {
+        return handleResponse(
+          res,
+          404,
+          "warning",
+          "Id noto'g'ri berildi",
+          null
+        );
+      }
 
-        await Customers.updateOne(
-            { _id: customerId },
-            {
-                $inc: {
-                    budget: -onePayment.amount + amount
-                }
-            }
-        )
-        await Payments.updateOne(
-            { _id: id },
-            {
-                $set: {
-                    amount,
-                    comment
-                }
-            }
-        )
-        res.status(201).json({
-            variant: "success",
-            msg: "To'lov muvaffaqiyatli tahrirlandi",
-            innerData: onePayment
-        });
-    } catch {
-        res
-            .status(500)
-            .json({ variant: "error", msg: "server error", innerData: null });
-    }
-}
+      // Fetch payment and customer
+      const payment = await Payments.findById(id);
+      const customer = await Customers.findById(customerId);
+
+      // Check if payment and customer exist, and if the customer ID matches the payment's customer ID
+      if (
+        !payment ||
+        !customer ||
+        customer._id.toString() !== payment.customerId
+      ) {
+        return handleResponse(res, 404, "warning", "To'lov topilmadi", null);
+      }
+
+      // Update payment
+      let updatedPayment = await Payments.findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            amount,
+            comment,
+          },
+        },
+        { session, new: true }
+      );
+
+      // Update customer's budget
+      await Customers.findByIdAndUpdate(
+        customerId,
+        {
+          $inc: {
+            budget: -payment.amount + amount,
+          },
+        },
+        { session, new: true }
+      );
+
+      handleResponse(
+        res,
+        201,
+        "success",
+        "To'lov muvaffaqiyatli tahrirlandi",
+        updatedPayment
+      );
+    });
+  } catch (error) {
+    handleResponse(res, 500, "error", "Server error", null);
+  } finally {
+    session.endSession();
+  }
+};
+
+exports.deletePayment = async (req, res) => {
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      const { id } = req.params;
+
+      // Validate the ID
+      if (id.length !== 24) {
+        return handleResponse(res, 404, "warning", "Invalid ID provided", null);
+      }
+
+      // Fetch the payment
+      const payment = await Payments.findById(id);
+
+      // Check if the payment exists
+      if (!payment) {
+        return handleResponse(res, 404, "warning", "Payment not found", null);
+      }
+
+      // Update customer's budget (subtract the payment amount)
+      await Customers.findByIdAndUpdate(
+        payment.customerId,
+        {
+          $inc: {
+            budget: -payment.amount,
+          },
+        },
+        { session }
+      );
+
+      // Delete the payment
+      await Payments.findByIdAndDelete(id, { session });
+
+      handleResponse(res, 200, "success", "Payment successfully deleted", null);
+    });
+  } catch (error) {
+    handleResponse(res, 500, "error", "Server error", null);
+  } finally {
+    session.endSession();
+  }
+};

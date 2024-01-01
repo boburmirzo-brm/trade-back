@@ -1,14 +1,17 @@
 const { Schema, model } = require("mongoose"),
-    JOI = require("joi")
+    JOI = require("joi"),
+    {timeZone} = require("../utils/timeZone")
 
 
 const PaymentSchema = new Schema({
     customerId: {
-        type: String,
-        required: true
+        type: Schema.Types.ObjectId,
+        ref: "customers",
+        required: true,
     },
     adminId: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "admins",
         required: true
     },
     amount: {
@@ -18,7 +21,7 @@ const PaymentSchema = new Schema({
     createdAt: {
         type: String,
         required: false,
-        default: new Date().toISOString()
+        default: () => timeZone()
     },
     comment: {
         type: String,

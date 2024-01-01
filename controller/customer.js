@@ -1,69 +1,50 @@
 const { Customers, validateCustomer } = require("../model/customerSchema");
 const { dateQuery } = require("../utils/dateQuery")
 
-exports.getOneCustomer = async (req, res) => {
+const handleResponse = (res, status, variant, msg, innerData, totalCount) => {
+  res.status(status).json({
+    variant,
+    msg,
+    innerData,
+    totalCount
+  });
+};
+
+exports.getCustomers = async (req, res) => {
     try {
-        const oneCustomer = await Customers.findById(req.params.id)
-        if (!oneCustomer) {
-            return res.status(404).json({
-                variant: "warning",
-                msg: "Mijoz topilmadi",
-                innerData: null
-            });
-        }
-        res.status(200).json({
-            variant: "success",
-            msg: "Mijoz topildi",
-            innerData: oneCustomer
-        });
-    }
-    catch {
-        res.status(500).json({
-            variant: "error",
-            msg: "server error",
-            innerData: null
-        });
-    }
-}
-exports.getCustomer = async (req, res) => {
-    try {
-        const customers = await Customers.find(dateQuery(req.query)).sort({ _id: -1 });
-        res.status(200).json({
-            variant: "success",
-            msg: "Barcha mijozlar",
-            innerData: customers
-        });
+        let {isActive=true} = req.query
+        const customers = await Customers.find({ isActive, ...dateQuery(req.query)}).sort({ createdAt: -1 });
+        handleResponse(res, 200, "success", "Barcha mijozlar", customers, customers.length)
     } catch {
-        res.status(500).json({
-            variant: "error",
-            msg: "server error",
-            innerData: null
-        });
+        handleResponse(res, 500, "error", "server error", null)
     }
 };
+
+exports.getOneCustomer = async (req, res) => {
+    try {
+        const {id} = req.params
+        // const oneCustomer = await Customers.findOne({_id:id})
+        const customer = await Customers.findById(id)
+        if (!customer) {
+            return handleResponse(res, 404, "warning", "Mijoz topilmadi", null)
+        }
+        handleResponse(res, 200, "success", "Mijoz topildi", customer)
+    }
+    catch {
+        handleResponse(res, 500, "error", "server error", null)
+    }
+}
 
 exports.createCustomer = async (req, res) => {
     try {
         const { error } = validateCustomer(req.body);
         if (error) {
-            return res.status(400).json({
-                variant: "warning",
-                msg: error.details[0].message,
-                innerData: null,
-            });
+            return handleResponse(res, 400, "warning", error.details[0].message, null)
         }
         const newCustomer = await Customers.create(req.body);
-        res.status(201).json({
-            variant: "success",
-            msg: "Mijoz muvaffaqiyatli qo'shildi",
-            innerData: newCustomer,
-        });
+        handleResponse(res, 201, "success","Mijoz muvaffaqiyatli qo'shildi", newCustomer )
     } catch {
-        res.status(500).json({
-            variant: "error",
-            msg: "Serverda xatolik",
-            innerData: null,
-        });
+        handleResponse(res, 500, "error", "server error", null)
     }
 };
 
@@ -72,51 +53,46 @@ exports.updateCustomer = async (req, res) => {
         const { id } = req.params
         const oneCustomer = await Customers.findById(id)
         if (!oneCustomer) {
-            return res.status(404).json({
-                variant: "warning",
-                msg: "Mijoz topilmadi",
-                innerData: null
-            });
+            return handleResponse(res, 404, "warning", "Mijoz topilmadi", null)
         }
         const updatedCustomer = await Customers.findByIdAndUpdate(id, {...req.body, budget: oneCustomer.budget}, {new:true})
-        res.status(200).json({
-            variant: "success",
-            msg: "Mijoz muvaffaqiyatli tahrirlandi",
-            innerData: updatedCustomer
-        });
+        handleResponse(res, 200, "success", "Mijoz muvaffaqiyatli tahrirlandi", updatedCustomer)
     }
     catch {
-        res.status(500).json({
-            variant: "error",
-            msg: "server error",
-            innerData: null
-        });
+        handleResponse(res, 500, "error", "server error", null)
     }
 };
 
 exports.isActiveCustomer = async (req, res, next) => {
     try {
         const { id } = req.params
-        const updatedCustomerOne = await Customers.findById(id)
-        await Customers.updateOne(
-            { _id: id },
+        const customer = await Customers.findById(id)
+        if (!customer) {
+            return handleResponse(res, 404, "warning", "Mijoz topilmadi", null)
+        }
+        let updatedCustomer = await Customers.findByIdAndUpdate(
+            id,
             {
                 $set: {
-                    isActive: !(updatedCustomerOne.isActive)
+                    isActive: !(customer.isActive)
                 }
             }
         )
-        res.status(200).json({
-            variant: "success",
-            msg: "Arxivga solindi yoki chiqarildi",
-            innerData: updatedCustomerOne
-        })
+        handleResponse(res, 200, "success", `Arxiv${customer.isActive ? "ga qo'shildi" : "dan chiqarildi"}`,updatedCustomer)
     }
     catch {
-        res.status(500).json({
-            variant: "error",
-            msg: "Serverda xatolik",
-            innerData: null
-        });
+        handleResponse(res, 500, "error", "server error", null)
     }
 }
+
+// hali to'liq bitmagan delete
+exports.deleteCustomer = async (req, res) => {
+    try {
+        const { id } = req.params;
+        await Customers.findByIdAndDelete(id);
+        handleResponse(res, 200, "success", "Customer successfully deleted", null);
+    } catch  {
+      handleResponse(res, 500, "error", "Server error", null);
+    } 
+};
+  

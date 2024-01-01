@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose"),
-    JOI = require("joi")
+    JOI = require("joi"),
+    {timeZone} = require("../utils/timeZone")
 
 
 const CustomerSchema = new Schema({
@@ -30,17 +31,16 @@ const CustomerSchema = new Schema({
     createdAt: {
         type: String,
         required: false,
-        default: new Date().toISOString()
+        default: ()=> timeZone()
     },
-    updatedAt: {
-        type: String,
-        required: false,
-        default: "Tahrirlanmagan"
-    },
+    // updatedAt: {
+    //     type: String,
+    //     required: false,
+    //     default: "Tahrirlanmagan"
+    // },
     isActive: {
         type: Boolean,
-        default: true,
-        required: true
+        default: true
     }
 })
 
@@ -54,9 +54,9 @@ const validateCustomer = (body) => {
         address: JOI.string().required(),
         budget: JOI.number().required(),
         adminId: JOI.string().required(),
-        isActive: JOI.boolean().required(),
+        isActive: JOI.boolean(),
         createdAt: JOI.string(),
-        updatedAt: JOI.string()
+        // updatedAt: JOI.string()
     })
     return schema.validate(body)
 }

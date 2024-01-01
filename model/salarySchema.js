@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose"),
-    JOI = require("joi")
+    JOI = require("joi"),
+    {timeZone} = require("../utils/timeZone")
 
 
 const salarySchema = new Schema({
@@ -14,7 +15,7 @@ const salarySchema = new Schema({
     createdAt: {
         type: String,
         required: false,
-        default: new Date().toISOString()
+        default:()=> timeZone()
     },
     comment: {
         type: String,

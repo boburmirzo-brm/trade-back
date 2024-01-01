@@ -1,5 +1,6 @@
 const { Schema, model, default: mongoose } = require('mongoose');
 const JOI = require('joi');
+const {timeZone} = require("../utils/timeZone")
 
 const buyOrSellSchema = new Schema(
   {
@@ -64,8 +65,12 @@ const buyOrSellSchema = new Schema(
       required: true,
       default: false,
     },
+    createdAt: {
+      type: String,
+      required: false,
+      default: ()=> timeZone()
   },
-  { timestamps: true }
+  },
 );
 
 const BuyOrSells = model('BuyOrSell', buyOrSellSchema);
@@ -96,6 +101,7 @@ const validateBuyOrSell = (body) => {
     comment: JOI.string().allow(''),
     adminId: JOI.string().allow(''),
     returnedItem: JOI.boolean().required(),
+    createdAt: JOI.string()
   });
 
   return schema.validate(body);

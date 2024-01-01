@@ -1,5 +1,6 @@
 const { Schema, model } = require("mongoose");
 const Joi = require("joi");
+const {timeZone} = require("../utils/timeZone")
 
 const productSchema = new Schema({
     title: {
@@ -25,7 +26,7 @@ const productSchema = new Schema({
     createdAt: {
         type: String,
         required: false,
-        default: new Date().toISOString()
+        default:()=> timeZone()
     },
     comment: {
         type: String,
