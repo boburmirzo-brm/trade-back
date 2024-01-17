@@ -25,13 +25,18 @@ const SellerSchema = new Schema({
         require: true
     },
     createdAt: {
-        type: String,
+        type: Date,
         require: false,
         default:()=> timeZone()
     },
-    // adminIn - xato bulib qopti
+    updatedAt: {
+        type: Date,
+        required: false,
+        default: ()=> timeZone()
+    },
     adminId: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "admins",
         require: true
     },
     isActive: {
@@ -50,6 +55,7 @@ const validateSeller = (body) => {
       address: JOI.string().required(),
       budget: JOI.number().required(),
       createdAt: JOI.string(),
+      updatedAt: JOI.string(),
       adminId: JOI.string().required(),
       isActive: JOI.boolean()
   })

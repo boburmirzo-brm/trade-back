@@ -4,11 +4,13 @@ const { timeZone } = require("../utils/timeZone")
 
 const expenseSchema = new Schema({
     adminId: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "admins",
         required: true
     },
     sellerId: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "sellers",
         required: true
     },
     amount: {
@@ -16,13 +18,14 @@ const expenseSchema = new Schema({
         required: true
     },
     createdAt: {
-        type: String,
+        type: Date,
         required: false,
         default:()=> timeZone()
     },
     updatedAt: {
-        type: String,
-        required: false
+        type: Date,
+        required: false,
+        default:()=> timeZone()
     },
     comment: {
         type: String,
@@ -38,7 +41,8 @@ const validateExpense = (body) => {
         sellerId: Joi.string().required(),
         amount: Joi.number().required(),
         createdAt: Joi.string(),
-        comment: Joi.string(),
+        updatedAt: Joi.string(),
+        comment: Joi.string().allow(""),
     })
     return schema.validate(body)
 }

@@ -19,7 +19,12 @@ const PaymentSchema = new Schema({
         required: true
     },
     createdAt: {
-        type: String,
+        type: Date,
+        required: false,
+        default: () => timeZone()
+    },
+    updatedAt: {
+        type: Date,
         required: false,
         default: () => timeZone()
     },
@@ -37,7 +42,8 @@ const validatePayment = (body) => {
         adminId: JOI.string().required(),
         amount: JOI.number().required(),
         createdAt: JOI.string(),
-        comment: JOI.string()
+        updatedAt: JOI.string(),
+        comment: JOI.string().allow("")
     })
     return schema.validate(body)
 }

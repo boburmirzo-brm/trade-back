@@ -24,25 +24,32 @@ const productSchema = new Schema({
         required: true
     },
     createdAt: {
-        type: String,
+        type: Date,
         required: false,
         default:()=> timeZone()
+    },
+    updatedAt: {
+        type: Date,
+        required: false,
+        default: ()=> timeZone()
     },
     comment: {
         type: String,
         required: false
     },
     adminId: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "admins",
         required: true
     },
     sellerId: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "sellers",
         required: false
     }
 });
 
-const Products = model("product", productSchema);
+const Products = model("products", productSchema);
 
 const validationProduct = (body) => {
     const schema = Joi.object({
@@ -52,9 +59,10 @@ const validationProduct = (body) => {
         category: Joi.string().required(),
         units: Joi.string().required(),
         createdAt: Joi.string(),
-        comment: Joi.string(),
-        adminId: Joi.string(),
-        sellerId: Joi.string()
+        updatedAt: Joi.string(),
+        comment: Joi.string().allow(""),
+        adminId: Joi.string().required(),
+        sellerId: Joi.string().required()
     });
     return schema.validate(body);
 }

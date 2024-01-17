@@ -1,18 +1,16 @@
-const express = require("express"),
-    cors = require("cors"),
-    dotenv = require("dotenv"),
-    { config } = dotenv,
-    mongoose = require("mongoose"),
-    app = express(),
-    morgan = require("morgan")
-
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const { config } = dotenv;
+const mongoose = require("mongoose");
+const app = express();
+const morgan = require("morgan");
+const {corsOptions} = require("./utils/corsOptions")
 
 app.use(express.json())
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(morgan("dev"))
 config()
-
-
 
 mongoose.connect(process.env.MONGODB_URL)
     .then((res => console.log("MongoDB is connected")))

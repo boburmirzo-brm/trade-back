@@ -25,19 +25,20 @@ const CustomerSchema = new Schema({
         required: true
     },
     adminId: {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "admins",
         required: true
     },
     createdAt: {
-        type: String,
+        type: Date,
         required: false,
         default: ()=> timeZone()
     },
-    // updatedAt: {
-    //     type: String,
-    //     required: false,
-    //     default: "Tahrirlanmagan"
-    // },
+    updatedAt: {
+        type: Date,
+        required: false,
+        default: ()=> timeZone()
+    },
     isActive: {
         type: Boolean,
         default: true
@@ -56,7 +57,7 @@ const validateCustomer = (body) => {
         adminId: JOI.string().required(),
         isActive: JOI.boolean(),
         createdAt: JOI.string(),
-        // updatedAt: JOI.string()
+        updatedAt: JOI.string()
     })
     return schema.validate(body)
 }

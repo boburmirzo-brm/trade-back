@@ -29,7 +29,12 @@ const AdminSchema = new Schema({
         required: true
     },
     createdAt: {
-        type: String,
+        type: Date,
+        required: false,
+        default: ()=> timeZone()
+    },
+    updatedAt: {
+        type: Date,
         required: false,
         default: ()=> timeZone()
     },
@@ -52,6 +57,7 @@ const validateAdmin = (body) => {
         username: JOI.string().required().min(4),
         password: JOI.string().required().min(8).max(32),
         createdAt: JOI.string(),
+        updatedAt: JOI.string(),
         isActive: JOI.boolean()
         // salaries: JOI.array().required(),
         // expenses: JOI.array().required()

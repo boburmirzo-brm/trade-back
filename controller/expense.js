@@ -2,17 +2,23 @@ const { Expense, validateExpense } = require("../model/expenseSchema");
 const { Sellers } = require("../model/sellerSchema");
 const { dateQuery } = require("../utils/dateQuery");
 const mongoose = require("mongoose");
-const { handleResponse } = require("../utils/handleResponse")
+const { handleResponse } = require("../utils/handleResponse");
+const { timeZone } = require("../utils/timeZone");
 
 class ExpenseController{
   async getAll (req, res) {
     try {
       const { count = 1, pagination = 10 } = req.query;
-      const payments = await Expense.find(dateQuery(req.query)).sort({
+      const payments = await Expense.find(dateQuery(req.query))
+      .populate([
+        { path: "sellerId", select: ["fname", "lname"] },
+        { path: "adminId", select: ["fname", "lname"] },
+      ])
+      .sort({
         createdAt: -1,
       });
   
-      if (!payments) {
+      if (!payments.length) {
         return handleResponse(res, 404, "warning", "To'lovlar topilmadi", null);
       }
   
@@ -32,14 +38,23 @@ class ExpenseController{
     try {
       const { sellerId } = req.params;
       const { count = 1, pagination = 10 } = req.query;
-      const payments = await Expense.find({
+      if (sellerId.length !== 24) {
+        return handleResponse(
+          res,
+          404,
+          "warning",
+          "Id noto'g'ri berildi",
+          null
+        );
+      }
+      const expenses = await Expense.find({
         sellerId,
         ...dateQuery(req.query),
       }).sort({
         createdAt: -1,
       });
   
-      if (!payments) {
+      if (!expenses.length) {
         return handleResponse(res, 404, "warning", "To'lovlar topilmadi", null);
       }
   
@@ -48,8 +63,8 @@ class ExpenseController{
         200,
         "success",
         "Barcha to'lovlar",
-        payments.slice(0, count * pagination),
-        payments.length
+        expenses.slice(0, count * pagination),
+        expenses.length
       );
     } catch (error) {
       handleResponse(res, 500, "error", "Serverda xatolik", null);
@@ -70,7 +85,10 @@ class ExpenseController{
           );
         }
         const { sellerId, amount } = req.body;
-  
+        const seller = await Sellers.exists({_id: sellerId})
+        if(!seller){
+          return handleResponse(res, 400, "error", "Sotuvchi topilmadi", null)
+        }
         await Sellers.findByIdAndUpdate(
           sellerId,
           {
@@ -86,7 +104,7 @@ class ExpenseController{
         handleResponse(res, 201, "success", "Tolov qabul qilindi", newExpense);
       });
     } catch (error) {
-      handleResponse(res, 500, "error", "Server error", null);
+      handleResponse(res, 500, "error", "Serverda xatolik", null);
     } finally {
       session.endSession();
     }
@@ -95,11 +113,11 @@ class ExpenseController{
     const session = await mongoose.startSession();
     try {
       await session.withTransaction(async () => {
-        const { id } = req.params;
+        const { id: expenseId } = req.params;
         const { sellerId, amount, comment } = req.body;
   
         // Validate IDs
-        if ([id, sellerId].some((el) => el.length !== 24)) {
+        if ([expenseId, sellerId].some((el) => el.length !== 24)) {
           return handleResponse(
             res,
             404,
@@ -108,27 +126,37 @@ class ExpenseController{
             null
           );
         }
-  
+        const { error } = validateExpense(req.body);
+        if (error) {
+          return handleResponse(
+            res,
+            400,
+            "warning",
+            error.details[0].message,
+            null
+          );
+        }
         // Fetch payment and customer
-        const expenses = await Expense.findById(id);
+        const expenses = await Expense.findById(expenseId);
         const sellers = await Sellers.findById(sellerId);
   
         // Check if payment and customer exist, and if the customer ID matches the payment's customer ID
         if (
           !expenses ||
           !sellers ||
-          sellers._id.toString() !== expenses.sellerId
+          sellers._id.toString() !== expenses.sellerId.toString()
         ) {
           return handleResponse(res, 404, "warning", "To'lov topilmadi", null);
         }
   
         // Update payment
         let updatedExpense = await Expense.findByIdAndUpdate(
-          id,
+          expenseId,
           {
             $set: {
               amount,
               comment,
+              updatedAt: timeZone()
             },
           },
           { session, new: true }
@@ -149,12 +177,12 @@ class ExpenseController{
           res,
           201,
           "success",
-          "To'lov muvaffaqiyatli tahrirlandi",
+          "To'lov muvaffaqiyatli o'zgartirildi",
           updatedExpense
         );
       });
     } catch (error) {
-      handleResponse(res, 500, "error", "Server error", null);
+      handleResponse(res, 500, "error", "Serverda xatolik", null);
     } finally {
       session.endSession();
     }
@@ -184,9 +212,6 @@ class ExpenseController{
           return handleResponse(res, 404, "warning", "To'lov topilmadi", null);
         }
   
-        // Delete the expense
-        await Expense.findByIdAndDelete(id, { session });
-  
         // Update seller's budget
         await Sellers.findByIdAndUpdate(
           expense.sellerId,
@@ -197,6 +222,9 @@ class ExpenseController{
           },
           { session }
         );
+        
+        // Delete the expense
+        await Expense.findByIdAndDelete(id, { session });
   
         handleResponse(
           res,
@@ -207,7 +235,7 @@ class ExpenseController{
         );
       });
     } catch (error) {
-      handleResponse(res, 500, "error", "Server error", null);
+      handleResponse(res, 500, "error", "Serverda xatolik", null);
     } finally {
       session.endSession();
     }

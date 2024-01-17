@@ -1,263 +1,508 @@
-const { BuyOrSells, validateBuyOrSell } = require('../model/buyOrSellSchema'),
-  { Sellers } = require('../model/sellerSchema'),
-  { Order } = require('../model/orderSchema'),
-  { Customers } = require('../model/customerSchema'),
-  { Products } = require('../model/productSchema'),
-  { Admins } = require('../model/adminSchema');
-const { dateQuery } = require('../utils/dateQuery');
+const { BuyOrSells, validateBuyOrSell } = require("../model/buyOrSellSchema");
+const { Sellers } = require("../model/sellerSchema");
+const { Customers } = require("../model/customerSchema");
+const { Products } = require("../model/productSchema");
+const { dateQuery } = require("../utils/dateQuery");
+const { handleResponse } = require("../utils/handleResponse");
+const mongoose = require("mongoose");
 
-exports.getBuyOrSells = async (req, res) => {
-  try {
-    const buyOrSells = await BuyOrSells.find(dateQuery(req.query)).sort({
-      _id: -1,
-    });
-    res.status(200).json({
-      variant: 'success',
-      msg: 'Barcha kirim-chiqimlar',
-      innerData: buyOrSells,
-    });
-  } catch {
-    res.status(500).json({
-      variant: 'error',
-      msg: 'Serverda hatolik yuz berdi.',
-      innerData: null,
-    });
+class BuyOrSellController {
+  async getAll(req, res) {
+    try {
+      const { count = 1, pagination = 10, status=["input", "output"] } = req.query;
+      const buyOrSells = await BuyOrSells.find({ ...dateQuery(req.query), status: { $in: status} })
+        .populate([
+          { path: "sellerId", select: ["fname", "lname"] },
+          { path: "customerId", select: ["fname", "lname"] },
+          { path: "adminId", select: ["fname", "lname"] },
+          { path: "productId", select: ["title", "units"] },
+        ])
+        .sort({
+          createdAt: -1,
+        });
+      if (!buyOrSells.length) {
+        return handleResponse(
+          res,
+          404,
+          "warning",
+          "Kirim-chiqimlar topilmadi",
+          null
+        );
+      }
+      handleResponse(
+        res,
+        200,
+        "success",
+        "Barcha kirim-chiqimlar",
+        buyOrSells.slice(0, count * pagination),
+        buyOrSells.length
+      );
+    } catch {
+      handleResponse(res, 500, "error", "Serverda xatolik", null);
+    }
   }
-};
-
-// status - input
-// sellerId
-// productId
-
-// update --> Seller budget + price * quantity
-// update --> Product price - quantity
-// create --> buyOrSell
-
-exports.createBuyOrSellInput = async (req, res) => {
-  try {
-    const { error } = validateBuyOrSell(req.body);
-    if (error) {
-      return res.status(400).json({
-        variant: 'warning',
-        msg: error.details[0].message,
-        innerData: null,
-      });
+  async getByCustomerId(req, res) {
+    try {
+      const { id } = req.params;
+      const { count = 1, pagination = 10 } = req.query;
+      const buyOrSells = await BuyOrSells.find({
+        ...dateQuery(req.query),
+        customerId: id,
+      })
+        .populate([
+          { path: "customerId", select: ["fname", "lname"] },
+          { path: "adminId", select: ["fname", "lname"] },
+          { path: "productId", select: ["title", "units"] },
+        ])
+        .sort({
+          createdAt: -1,
+        });
+      if (!buyOrSells.length) {
+        return handleResponse(
+          res,
+          404,
+          "warning",
+          "Kirim-chiqimlar topilmadi",
+          null
+        );
+      }
+      handleResponse(
+        res,
+        200,
+        "success",
+        "Barcha kirim-chiqimlar",
+        buyOrSells.slice(0, count * pagination),
+        buyOrSells.length
+      );
+    } catch {
+      handleResponse(res, 500, "error", "Serverda xatolik", null);
     }
-
-    const { status, sellerId, orderId, price, quantity, productId } = req.body;
-
-    if (status !== 'input' || sellerId === '' || orderId !== '')
-      return res.status(400).json({
-        variant: 'warning',
-        msg: "Status yoki Sotuvchi Idsi notog'ri kiritilgan.",
-        innerData: null,
-      });
-
-    await Sellers.findByIdAndUpdate(sellerId, {
-      $inc: { budget: price * quantity },
-    });
-
-    const product = await Products.findById(productId);
-    if (!product)
-      return res.status(400).json({
-        variant: 'warning',
-        msg: "Mahsulot topilmadi. Noto'gri Id kiritilgan.",
-      });
-
-    let totalPriceInStore = product.quantity * product.price;
-    let newProductPrice = price * quantity;
-    let total = totalPriceInStore + newProductPrice;
-    let totalQuantity = product.quantity + quantity;
-    let singlePrice = total / totalQuantity;
-
-    await Products.findByIdAndUpdate(productId, {
-      price: singlePrice,
-      $inc: { quantity: quantity },
-    });
-
-    const BuyOrSell = await BuyOrSells.create(req.body);
-
-    res.status(201).json({
-      variant: 'success',
-      msg: 'Kirim-chiqim muvaffaqiyatli yaratildi. Sotuvchining budgeti va mahsulot narxi yangilandi.',
-      innerData: BuyOrSell,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      variant: 'error',
-      msg: 'Serverda hatolik yuz berdi.',
-      innerData: null,
-    });
   }
-};
-
-exports.createBuyOrSell = async (req, res) => {
-  try {
-    const { error } = validateBuyOrSell(req.body);
-    if (error) {
-      return res.status(400).json({
-        variant: 'warning',
-        msg: error.details[0].message,
-        innerData: null,
-      });
+  async getBySellerId(req, res) {
+    try {
+      const { id } = req.params;
+      const { count = 1, pagination = 10 } = req.query;
+      const buyOrSells = await BuyOrSells.find({
+        ...dateQuery(req.query),
+        sellerId: id,
+      })
+        .populate([
+          { path: "sellerId", select: ["fname", "lname"] },
+          { path: "adminId", select: ["fname", "lname"] },
+          { path: "productId", select: ["title", "units"] },
+        ])
+        .sort({
+          createdAt: -1,
+        });
+      if (!buyOrSells.length) {
+        return handleResponse(
+          res,
+          404,
+          "warning",
+          "Kirim-chiqimlar topilmadi",
+          null
+        );
+      }
+      handleResponse(
+        res,
+        200,
+        "success",
+        "Barcha kirim-chiqimlar",
+        buyOrSells.slice(0, count * pagination),
+        buyOrSells.length
+      );
+    } catch {
+      handleResponse(res, 500, "error", "Server error", null);
     }
+  }
+  async createInput(req, res) {
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const { error } = validateBuyOrSell({ ...req.body, status: "input" });
+        if (error) {
+          return handleResponse(
+            res,
+            400,
+            "warning",
+            error.details[0].message,
+            null
+          );
+        }
+        const { sellerId, price, quantity, productId } = req.body;
 
-    const { status, orderId, sellerId, price, quantity, productId, adminId } =
-      req.body;
+        const product = await Products.findById(productId);
+        if (!product) {
+          return handleResponse(res, 404, "error", "Kirim-chiqimlar toplimadi", null);
+        }
 
-    if (status === 'input' && orderId !== '') {
-      return res.status(400).json({
-        variant: 'warning',
-        msg: "Zakaz Idsi status inputga teng bo'lganida bo'sh string bo'lishi shart!",
-        innerData: null,
-      });
-    } else if (status === 'output' && sellerId !== '') {
-      return res.status(400).json({
-        variant: 'warning',
-        msg: "Sotuvchi Idsi status outputga teng bo'lganida bo'sh string bo'lishi shart!",
-        innerData: null,
-      });
-    }
-    switch (status) {
-      case 'input':
-        // find seller
-        const seller = await Sellers.findById(sellerId);
+        let { singlePrice } = totalCalculate(product, {price,quantity}, "plus")
 
-        // check if seller exists
-        if (!seller)
-          return res.status(400).json({
-            variant: 'warning',
-            msg: "Sotuvchi topilmadi. Noto'gri Id kiritilgan.",
-          });
-
-        // seller -> budget + (price * quantity)
-        let sellerBudget = seller.budget - price * quantity;
-        await Sellers.findByIdAndUpdate(sellerId, {
-          budget: sellerBudget,
+        await Products.findByIdAndUpdate(
+          productId,
+          {
+            price: singlePrice,
+            $inc: { quantity: quantity },
+          },
+          { session }
+        );
+        await Sellers.findByIdAndUpdate(
+          sellerId,
+          {
+            $inc: { budget: price * quantity },
+          },
+          { session }
+        );
+        const BuyOrSell = await BuyOrSells.create({
+          ...req.body,
+          status: "input",
         });
 
-        break;
-      case 'output':
-        // customer -> budget - (price * quantity)
-        const order = await Order.findById(orderId);
-
-        if (!order)
-          return res.status(400).json({
-            variant: 'warning',
-            msg: "Zakaz topilmadi. Noto'gri Id kiritilgan.",
-          });
-
-        const customerId = order.customerId;
-        const customer = await Customers.findById(customerId);
-        if (!customer)
-          return res.status(400).json({
-            variant: 'warning',
-            msg: "Haridor topilmadi. Noto'gri Id kiritilgan.",
-          });
-        await Customers.findByIdAndUpdate(customerId, {
-          budget: customer.budget - price * quantity,
+        handleResponse(
+          res,
+          201,
+          "success",
+          "Mahsulot kirim bo'ldi",
+          BuyOrSell
+        );
+      });
+    } catch (error) {
+      handleResponse(res, 500, "error", "Serverda xatolik", null);
+    } finally {
+      session.endSession();
+    }
+  }
+  async createOutput(req, res) {
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const { error } = validateBuyOrSell({
+          ...req.body,
+          status: "output",
+          originalPrice: 1,
         });
-        break;
-    }
+        if (error) {
+          return res.status(400).json({
+            variant: "warning",
+            msg: error.details[0].message,
+            innerData: null,
+          });
+        }
 
-    // Products -> productId ->
-    const product = await Products.findById(productId);
+        const { price, quantity, productId, customerId } = req.body;
+        const product = await Products.findById(productId);
 
-    if (!product)
-      return res.status(400).json({
-        variant: 'warning',
-        msg: "Mahsulot topilmadi. Noto'gri Id kiritilgan.",
+        if (!product) {
+          return handleResponse(
+            res,
+            404,
+            "warning",
+            "kirim-chiqimlar topilmadi",
+            null
+          );
+        }
+        if (product.quantity < quantity) {
+          return handleResponse(
+            res,
+            400,
+            "warning",
+            `${product.title} ${product.quantity} ${product.units} bor halos`,
+            null
+          );
+        }
+
+        await Products.findByIdAndUpdate(
+          productId,
+          {
+            quantity: product.quantity - quantity,
+          },
+          { session }
+        );
+
+        await Customers.findByIdAndUpdate(
+          customerId,
+          {
+            $inc: { budget: -(price * quantity) },
+          },
+          { session }
+        );
+
+        const BuyOrSell = await BuyOrSells.create({
+          ...req.body,
+          originalPrice: product.price,
+          status: "output",
+        });
+        handleResponse(res, 201, "success", "Mahsulot sotildi", BuyOrSell);
       });
-    let totalPriceInStore = product.quantity * product.price;
-    // 13 000 * 10 = 130 000
-    let newProductPrice = price * quantity;
-    // 15 000 * 100 = 1 500 000
-    let total = totalPriceInStore + newProductPrice;
-    // 130 000 + 1 500 000 = 1 630 000
-    let totalQuantity = product.quantity + quantity;
-    let singlePrice = total / totalQuantity;
-    // 1 630 000 / 110 = 14 818
-
-    await Products.findByIdAndUpdate(productId, {
-      price: singlePrice,
-      quontity: totalQuantity,
-    });
-
-    const admin = await Admins.findById(adminId);
-
-    if (!admin) {
-      return res.status(400).json({
-        variant: 'warning',
-        msg: "Admin topilmadi. Noto'gri Id kiritilgan.",
-      });
+    } catch (error) {
+      handleResponse(res, 500, "error", "Serverda xatolik", null);
+    } finally {
+      session.endSession();
     }
-
-    const BuyOrSell = await BuyOrSells.create({
-      status,
-      orderId,
-      sellerId,
-      price,
-      quantity,
-      productId,
-      adminId,
-      ...req.body,
-    });
-    res.status(201).json({
-      variant: 'success',
-      msg: `Kirim-chiqim muvaffaqiyatli yaratildi. ${
-        status === 'output' ? 'Haridor' : 'Sotuvchi'
-      }ning budgeti va mahsulot narxi yangilandi.`,
-      innerData: BuyOrSell,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      variant: 'error',
-      msg: 'Serverda hatolik yuz berdi.',
-      innerData: null,
-    });
   }
-};
+  // async returnedItem(req, res) {
+  //   const session = await mongoose.startSession();
+  //   try {
+  //     await session.withTransaction(async () => {
+  //       const { id } = req.params;
+  //       let buyOrSell = await BuyOrSells.findById(id);
+  //       if (!buyOrSell) {
+  //         return handleResponse(
+  //           res,
+  //           404,
+  //           "warning",
+  //           "Kirim-chiqimlar topilmadi",
+  //           null
+  //         );
+  //       }
+  
+  //       let product = await Products.findById(buyOrSell.productId);
+  //       let isInput = buyOrSell.status === "input";
+  //       let isReturned = buyOrSell.returnedItem;
+  
+  //       let priceDiffSeller = isReturned
+  //         ? +(buyOrSell.price * buyOrSell.quantity)
+  //         : -(buyOrSell.price * buyOrSell.quantity);
+  
+  //       let priceDiffCustomer = isReturned
+  //         ? -(buyOrSell.price * buyOrSell.quantity)
+  //         : +(buyOrSell.price * buyOrSell.quantity);
+  
+  //       if (isInput) {
+  //         await Sellers.findByIdAndUpdate(
+  //           buyOrSell.sellerId,
+  //           { $inc: { budget: priceDiffSeller } },
+  //           { session }
+  //         );
+  //       } else {
+  //         await Customers.findByIdAndUpdate(
+  //           buyOrSell.customerId,
+  //           { $inc: { budget: priceDiffCustomer } },
+  //           { session }
+  //         );
+  //       }
+  
+  //       let { singlePrice } = totalCalculate(
+  //         product,
+  //         buyOrSell,
+  //         (isInput && !isReturned) || (!isInput && isReturned) ? "plus" : "minus"
+  //       );
+        
+  //       let quantity = (isInput && !isReturned) || (!isInput && isReturned) ? -buyOrSell.quantity : +buyOrSell.quantity
+  
+  //       await Products.findByIdAndUpdate(
+  //         buyOrSell.productId,
+  //         {
+  //           price: singlePrice,
+  //           $inc: { quantity: quantity },
+  //         },
+  //         { session }
+  //       );
+  
+  //       await BuyOrSells.findByIdAndUpdate(
+  //         id,
+  //         { $set: { returnedItem: !isReturned } },
+  //         { session }
+  //       );
+  
+  //       handleResponse(
+  //         res,
+  //         200,
+  //         "success",
+  //         "Kirim-chiqim muvaffaqiyatli qaytarildi",
+  //         null
+  //       );
+  //     });
+  //   } catch (error) {
+  //     handleResponse(res, 500, "error", "Server error", null);
+  //   } finally {
+  //     session.endSession();
+  //   }
+  // }
+  async returnedItem(req, res) {
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const { id } = req.params;
+        let buyOrSell = await BuyOrSells.findById(id);
+        if (!buyOrSell) {
+          return handleResponse(
+            res,
+            404,
+            "warning",
+            "Kirim-chiqimlar topilmadi",
+            null
+          );
+        }
+        let product = await Products.findById(buyOrSell.productId);
 
-// update
+        if (buyOrSell.status === "input") {
+          if(buyOrSell.returnedItem){
+            // Sellerdan olish
+            await Sellers.findByIdAndUpdate(
+              buyOrSell.sellerId,
+              {
+                $inc: { budget: +(buyOrSell.price * buyOrSell.quantity) },
+              },
+              { session }
+            );
+            let { singlePrice } = totalCalculate(product, buyOrSell, "plus")
+            await Products.findByIdAndUpdate(
+              buyOrSell.productId,
+              {
+                price: singlePrice,
+                $inc: { quantity: +buyOrSell.quantity },
+              },
+              { session }
+            );
+          }else{
+              // Sellerga qaytarish
+              await Sellers.findByIdAndUpdate(
+                buyOrSell.sellerId,
+                {
+                  $inc: { budget: -(buyOrSell.price * buyOrSell.quantity) },
+                },
+                { session }
+              );
+              let { singlePrice } = totalCalculate(product, buyOrSell, "minus")
+              await Products.findByIdAndUpdate(
+                buyOrSell.productId,
+                {
+                  price: singlePrice,
+                  $inc: { quantity: -buyOrSell.quantity },
+                },
+                { session }
+              );
+            }
+        } else {
+          if(buyOrSell.returnedItem){
+            // Customerga sotish
+            await Customers.findByIdAndUpdate(
+              buyOrSell.customerId,
+              {
+                $inc: { budget: -(buyOrSell.price * buyOrSell.quantity) },
+              },
+              { session }
+            );
+            await Products.findByIdAndUpdate(
+              buyOrSell.productId,
+              {
+                $inc: { quantity: -buyOrSell.quantity },
+              },
+              { session }
+            );
+          }else{
+            // Customerdan qaytin olish
+            await Customers.findByIdAndUpdate(
+              buyOrSell.customerId,
+              {
+                $inc: { budget: +(buyOrSell.price * buyOrSell.quantity) },
+              },
+              { session }
+            );
+            await Products.findByIdAndUpdate(
+              buyOrSell.productId,
+              {
+                $inc: { quantity: +buyOrSell.quantity },
+              },
+              { session }
+            );
 
-exports.deleteBuyOrSell = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await BuyOrSells.findByIdAndDelete(id, req.body);
-    res.status(200).json({
-      variant: 'success',
-      msg: "Kirim-chiqim muvaffaqiyatli o'chirildi",
-      innerData: null,
-    });
-  } catch {
-    res.status(500).json({
-      variant: 'error',
-      msg: 'Serverda hatolik yuz berdi.',
-      innerData: null,
-    });
+          }
+        }
+        await BuyOrSells.findByIdAndUpdate(id, {
+          $set:{returnedItem: !buyOrSell.returnedItem}
+        },{ session });
+        handleResponse(
+          res,
+          200,
+          "success",
+          "Kirim-chiqim muvaffaqiyatli qaytarildi",
+          null
+        );
+      });
+    } catch (error) {
+      handleResponse(res, 500, "error", "Serverda xatolik", null);
+    } finally {
+      session.endSession();
+    }
   }
-};
+  async deleteById(req, res) {
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const { id } = req.params;
+        let buyOrSell = await BuyOrSells.findById(id);
+        if (!buyOrSell) {
+          return handleResponse(
+            res,
+            404,
+            "warning",
+            "Kirim-chiqimlar topilmadi",
+            null
+          );
+        }
+        let product = await Products.findById(buyOrSell.productId);
+        if (buyOrSell.status === "input") {
+          await Sellers.findByIdAndUpdate(
+            buyOrSell.sellerId,
+            {
+              $inc: { budget: -(buyOrSell.price * buyOrSell.quantity) },
+            },
+            { session }
+          );
 
-// exports.deleteAllBuyOrSells = async (req, res) => {
-//   try {
-//     await BuyOrSells.deleteMany({});
+          let { singlePrice } = totalCalculate(product, buyOrSell, "minus")
 
-//     res.status(204).json({
-//       variant: 'success',
-//       msg: "Barcha Kirim-chiqimlar o'chirildi",
-//     });
-//   } catch {
-//     res.status(500).json({
-//       variant: 'error',
-//       msg: 'Serverda hatolik yuz berdi.',
-//       innerData: null,
-//     });
-//   }
-// };
+          await Products.findByIdAndUpdate(
+            buyOrSell.productId,
+            {
+              price: singlePrice,
+              $inc: { quantity: -buyOrSell.quantity },
+            },
+            { session }
+          );
+        } else {
+          await Customers.findByIdAndUpdate(
+            buyOrSell.customerId,
+            {
+              $inc: { budget: +(buyOrSell.price * buyOrSell.quantity) },
+            },
+            { session }
+          );
 
+          await Products.findByIdAndUpdate(
+            buyOrSell.productId,
+            {
+              $inc: { quantity: +buyOrSell.quantity },
+            },
+            { session }
+          );
+        }
+        await BuyOrSells.findByIdAndDelete(id);
+        handleResponse(
+          res,
+          200,
+          "success",
+          "Kirim-chiqim muvaffaqiyatli o'chirildi",
+          null
+        );
+      });
+    } catch (error) {
+      handleResponse(res, 500, "error", "Serverda xatolik", null);
+    } finally {
+      session.endSession();
+    }
+  }
+}
 
-// price , quantity - update
-// product -> quantity, price -> update
-// seller -> budget -> update
+module.exports = new BuyOrSellController();
+
+function totalCalculate(storeAmount, newAmount, plus){
+  let totalStore = storeAmount.quantity * storeAmount.price;
+  let totalNew = newAmount.price * newAmount.quantity;
+  let total =  totalStore + (plus === "plus" ? totalNew : -totalNew);
+  let quantity = storeAmount.quantity +  (plus === "plus" ? newAmount.quantity : -newAmount.quantity);
+  let singlePrice = total / (quantity ? quantity : 1);
+  return {quantity, singlePrice}
+}
