@@ -3,9 +3,23 @@ export default function adminOrOwner(req, res, next) {
         next();
     }
     else {
-        return res.status(400).json({
+        return res.status(403).json({
             variant: "succes",
             msg: "Sizning tokeningiz mos kelmadi!"
         })
     }
 }
+
+// function checkRoles(roles) {
+//     return function (req, res, next) {
+//         if (roles.includes(req?.admin?.role)) {
+//             next();
+//         }
+//         else {
+//             return res.status(403).json({
+//                 variant: "succes",
+//                 msg: "Sizning tokeningiz mos kelmadi!"
+//             })
+//         }
+//     }
+// }

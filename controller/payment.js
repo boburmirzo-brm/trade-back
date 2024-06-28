@@ -18,6 +18,7 @@ class PaymentController {
           createdAt: -1,
         });
 
+        // await Payments.countDocuments()
       if (!payments.length) {
         return handleResponse(res, 404, "warning", "To'lovlar topilmadi", null);
       }

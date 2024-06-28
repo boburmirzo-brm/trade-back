@@ -87,7 +87,7 @@ class ExpenseController{
         const { sellerId, amount } = req.body;
         const seller = await Sellers.exists({_id: sellerId})
         if(!seller){
-          return handleResponse(res, 400, "error", "Sotuvchi topilmadi", null)
+          return handleResponse(res, 400, "error", "Seller is not defined", null)
         }
         await Sellers.findByIdAndUpdate(
           sellerId,

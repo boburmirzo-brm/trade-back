@@ -13,7 +13,7 @@ const AdminSchema = new Schema({
         required: true
     },
     phones: {
-        type: Array,
+        type: String,
         required: true
     },
     role: {
@@ -52,7 +52,7 @@ const validateAdmin = (body) => {
     const schema = JOI.object({
         fname: JOI.string().required(),
         lname: JOI.string().required(),
-        phones: JOI.array().required(),
+        phones: JOI.string().required(),
         role: JOI.string().required(),
         username: JOI.string().required().min(4),
         password: JOI.string().required().min(8).max(32),

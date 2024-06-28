@@ -12,6 +12,7 @@ class AdminController {
       });
       const filterOwner = admins.filter( el => el.role !== process.env.OWNER_NAME )
       if (!filterOwner.length) {
+        // throw new NotFoundError("Hodimlar topilmadi")
         return handleResponse(res, 404, "warning", "Hodimlar topilmadi", null);
       }
       handleResponse(
@@ -177,6 +178,6 @@ class AdminController {
   }
 }
 
-module.exports = new AdminController
+module.exports = new AdminController()
 
 

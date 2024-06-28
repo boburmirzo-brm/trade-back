@@ -1,5 +1,6 @@
 exports.dateQuery = (query, defaultDayEgo=10)=>{
     if(!query.from || !query.to){
+        return null
         let currentDay = new Date(); 
         currentDay.setDate(currentDay.getDate() + 2);
         currentDay.setHours(0, 0, 0, 0);
