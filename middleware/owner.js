@@ -1,5 +1,7 @@
-export default function adminOrOwner(req, res, next) {
-    if (req?.admin?.isAdmin || req?.admin?.isOwner) {
+require("dotenv").config()
+
+exports.owner = (req, res, next) => {
+    if (req?.admin?.role === process.env.OWNER_NAME) {
         next();
     }
     else {

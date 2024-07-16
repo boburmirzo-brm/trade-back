@@ -12,13 +12,18 @@ const AdminSchema = new Schema({
         type: String,
         required: true
     },
-    phones: {
+    phone_primary: {
         type: String,
         required: true
     },
+    phone_secondary: {
+        type: String,
+        default: "",
+    },
     role: {
         type: String,
-        required: true
+        enum: [process.env.OWNER_NAME, 'admin'],
+        default: "admin"
     },
     username: {
         type: String,
@@ -43,8 +48,13 @@ const AdminSchema = new Schema({
         default: true
     }
 },
-// { timestamps: true }
+{ timestamps: true }
 )
+// AdminSchema.pre('findOneAndUpdate', function (next) {
+//     console.log(timeZone());
+//     this.updatedAt = timeZone();
+//     next();
+// });
 
 const Admins = model("admins", AdminSchema)
 
@@ -52,8 +62,9 @@ const validateAdmin = (body) => {
     const schema = JOI.object({
         fname: JOI.string().required(),
         lname: JOI.string().required(),
-        phones: JOI.string().required(),
-        role: JOI.string().required(),
+        phone_primary: JOI.string().required(),
+        phone_secondary: JOI.string().optional(),
+        role: JOI.string().optional(),
         username: JOI.string().required().min(4),
         password: JOI.string().required().min(8).max(32),
         createdAt: JOI.string(),

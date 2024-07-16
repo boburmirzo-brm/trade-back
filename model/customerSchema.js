@@ -4,6 +4,9 @@ const { Schema, model } = require("mongoose"),
 
 
 const CustomerSchema = new Schema({
+    // username: "",
+    // password: "",
+    // index: number,
     fname: {
         type: String,
         required: true
@@ -12,9 +15,13 @@ const CustomerSchema = new Schema({
         type: String,
         required: true
     },
-    phones: {
-        type: Array,
+    phone_primary: {
+        type: String,
         required: true
+    },
+    phone_secondary: {
+        type: String,
+        default: "",
     },
     address: {
         type: String,
@@ -27,7 +34,7 @@ const CustomerSchema = new Schema({
     adminId: {
         type: Schema.Types.ObjectId,
         ref: "admins",
-        required: true
+        required: false
     },
     createdAt: {
         type: Date,
@@ -42,6 +49,19 @@ const CustomerSchema = new Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    pin: {
+        type: Boolean,
+        default: false
+    },
+    isArchive: {
+        type: Boolean,
+        default: false
+    },
+    isPaidToday: {
+        type: Date,
+        required: false,
+        default: "2000-01-01T00:00:00.750Z"
     }
 })
 
@@ -51,10 +71,11 @@ const validateCustomer = (body) => {
     const schema = JOI.object({
         fname: JOI.string().required(),
         lname: JOI.string().required(),
-        phones: JOI.array().required(),
+        phone_primary: JOI.string().required(),
+        phone_secondary: JOI.string().optional(),
         address: JOI.string().required(),
         budget: JOI.number().required(),
-        adminId: JOI.string().required(),
+        adminId: JOI.string().optional(),
         isActive: JOI.boolean(),
         createdAt: JOI.string(),
         updatedAt: JOI.string()

@@ -1,33 +1,38 @@
 const express = require('express');
 const router = express.Router();
+const {auth} = require("../middleware/auth")
+const {admin} = require("../middleware/admin")
+const {owner} = require("../middleware/owner")
 
 // Admin route
 const AdminController = require("../controller/admin")
-router.get('/get/admins', AdminController.getAll);
-router.get('/get/admin/:id', AdminController.getById);
-router.post('/admin/sign-up', AdminController.signUp);
+router.get('/get/admins',[auth, owner], AdminController.getAll);
+router.get('/get/admin/:id',[auth, owner], AdminController.getById);
+router.post('/admin/sign-up',[auth, owner], AdminController.signUp);
 router.post('/admin/sign-in', AdminController.signIn);
-router.patch('/update/admin/:id', AdminController.updateById);
-router.patch('/isactive/admin/:id', AdminController.isActice);
-router.delete('/delete/admin/:id', AdminController.deleteById);
+router.patch('/update/admin/:id',[auth, owner], AdminController.updateById);
+router.patch('/isactive/admin/:id',[auth, owner], AdminController.isActice);
+router.delete('/delete/admin/:id',[auth, owner], AdminController.deleteById);
 
 // Seller route
 const SellerController = require("../controller/seller")
-router.get('/get/sellers', SellerController.getAll);
-router.get('/get/seller/:id', SellerController.getById); // single seller
-router.post('/create/seller', SellerController.createNew);
-router.patch('/update/seller/:id', SellerController.updateById);
-router.patch('/isactive/seller/:id', SellerController.isActive); // !boolean
-router.delete('/delete/seller/:id', SellerController.deleteById);
+router.get('/get/sellers',[auth, admin], SellerController.getAll);
+router.get('/get/sellers/search',[auth, admin], SellerController.search);
+router.get('/get/seller/:id',[auth, admin], SellerController.getById); // single seller
+router.post('/create/seller',[auth, admin], SellerController.createNew);
+router.patch('/update/seller/:id',[auth, admin], SellerController.updateById);
+router.patch('/isactive/seller/:id',[auth, admin], SellerController.isActive); // !boolean
+router.delete('/delete/seller/:id',[auth, owner], SellerController.deleteById);
 
 // Customer route
 const CustomerController = require("../controller/customer")
-router.get('/get/customers', CustomerController.getAll);
-router.get('/get/customer/:id', CustomerController.getById);
-router.post('/create/customer', CustomerController.createNew);
-router.patch('/update/customer/:id', CustomerController.updateById);
-router.patch('/isactive/customer/:id', CustomerController.isActive); // !boolean
-router.delete('/delete/customer/:id', CustomerController.deleteById); 
+router.get('/get/customers',[auth, admin], CustomerController.getAll);
+router.get('/get/customers/search',[auth, admin], CustomerController.search);
+router.get('/get/customer/:id',[auth, admin], CustomerController.getById);
+router.post('/create/customer',[auth, admin], CustomerController.createNew);
+router.patch('/update/customer/:id',[auth, admin], CustomerController.updateById);
+router.patch('/isactive/customer/:id',[auth, admin], CustomerController.isActive); // !boolean
+router.delete('/delete/customer/:id',[auth, owner], CustomerController.deleteById); 
 
 // Product route
 const ProductController = require("../controller/product")

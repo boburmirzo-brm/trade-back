@@ -1,9 +1,12 @@
-export default function admin(req, res, next) {
-    if (!req?.admin?.isAdmin) {
+require("dotenv").config()
+
+exports.admin = (req, res, next) => {
+    if (req?.admin?.role === "admin" || req?.admin?.role === process.env.OWNER_NAME) {
+        next()
+    }else{
         return res.status(403).json({
-            variant: "succes",
+            variant: "error",
             msg: "Sizning tokeningiz mos kelmadi!"
         })
     }
-    next()
 }

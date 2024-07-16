@@ -7,21 +7,21 @@ require("dotenv").config()
 class AdminController {
   async getAll(req, res) {
     try {
-      const admins = await Admins.find().sort({
+      let { isActive = true } = req.query;
+      const admins = await Admins.find({role: "admin", isActive}).sort({
         createdAt: -1,
       });
-      const filterOwner = admins.filter( el => el.role !== process.env.OWNER_NAME )
-      if (!filterOwner.length) {
+      if (!admins.length) {
         // throw new NotFoundError("Hodimlar topilmadi")
-        return handleResponse(res, 404, "warning", "Hodimlar topilmadi", null);
+        return handleResponse(res, 400, "warning", "Hodimlar topilmadi", null);
       }
       handleResponse(
         res,
         200,
         "success",
         "Barcha hodimlar",
-        filterOwner,
-        filterOwner.length
+        admins,
+        admins.length
       );
     } catch {
       handleResponse(res, 500, "error", "Serverda xatolik", null);
@@ -32,7 +32,7 @@ class AdminController {
       const { id } = req.params;
       const admin = await Admins.findById(id);
       if (!admin) {
-        return handleResponse(res, 404, "warning", "Hodim topilmadi", null);
+        return handleResponse(res, 400, "warning", "Hodim topilmadi", null);
       }
       handleResponse(res, 200, "success", "Hodim malumotlari", admin);
     } catch (error) {
@@ -90,7 +90,7 @@ class AdminController {
       if (checkAdmin && checkAdmin.password === password) {
         const TOKEN = JWT.sign(
           {
-            username,
+            // username,
             _id: checkAdmin._id,
             role: checkAdmin.role,
           },
@@ -129,7 +129,7 @@ class AdminController {
         new: true,
       });
       // const updatedAdminOne = await Admins.find({ _id: id })
-      handleResponse(res, 201, "success", "Ma'lumotlar yangilandi",updatedAdmin);
+      handleResponse(res, 200, "success", "Ma'lumotlar yangilandi",updatedAdmin);
     } catch {
       handleResponse(res, 500, "error", "serverda xatolik", null);
     }
@@ -139,7 +139,7 @@ class AdminController {
       const { id } = req.params;
       const admin = await Admins.findById(id);
       if (!admin) {
-        return handleResponse(res, 404, "warning", "Hodim topilmadi", null);
+        return handleResponse(res, 400, "warning", "Hodim topilmadi", null);
       }
       let updatedAdmin = await Admins.findByIdAndUpdate(id, {
         $set: {
@@ -162,7 +162,7 @@ class AdminController {
       const { id } = req.params;
       const admin = await Admins.exists({_id:id});
       if (!admin) {
-        return handleResponse(res, 404, "warning", "Hodim topilmadi", null);
+        return handleResponse(res, 400, "warning", "Hodim topilmadi", null);
       }
       await Admins.findByIdAndDelete(id);
       handleResponse(

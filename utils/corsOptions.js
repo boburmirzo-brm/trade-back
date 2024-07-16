@@ -1,4 +1,4 @@
-const allowedOrigins = ["http://example.com", "http://localhost:3000"]; // Add your allowed origins
+const allowedOrigins = ["http://trade.namtech.uz", "http://localhost:3000", ]; // Add your allowed origins
 const corsOptions = {
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {

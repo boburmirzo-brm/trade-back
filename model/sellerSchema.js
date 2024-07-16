@@ -4,6 +4,9 @@ const { Schema, model } = require("mongoose"),
 
 
 const SellerSchema = new Schema({
+    // username: "",
+    // password: "",
+    // index: number
     fname: {
         type: String,
         require: true 
@@ -12,9 +15,13 @@ const SellerSchema = new Schema({
         type: String,
         require: true
     },
-    phones: {
-        type: Array,
-        require: true
+    phone_primary: {
+        type: String,
+        required: true
+    },
+    phone_secondary: {
+        type: String,
+        default: "",
     },
     address: {
         type: String,
@@ -37,11 +44,24 @@ const SellerSchema = new Schema({
     adminId: {
         type: Schema.Types.ObjectId,
         ref: "admins",
-        require: true
+        require: false
     },
     isActive: {
         type: Boolean,
         default: true
+    },
+    pin: {
+        type: Boolean,
+        default: false
+    },
+    isArchive: {
+        type: Boolean,
+        default: false
+    },
+    isPaidToday: {
+        type: Date,
+        required: false,
+        default: "2000-01-01T00:00:00.750Z"
     }
 })
 
@@ -51,12 +71,13 @@ const validateSeller = (body) => {
   const schema = JOI.object({
       fname: JOI.string().required(),
       lname: JOI.string().required(),
-      phones: JOI.array().required(),
+      phone_primary: JOI.string().required(),
+      phone_secondary: JOI.string().optional(),
       address: JOI.string().required(),
       budget: JOI.number().required(),
       createdAt: JOI.string(),
       updatedAt: JOI.string(),
-      adminId: JOI.string().required(),
+      adminId: JOI.string().optional(),
       isActive: JOI.boolean()
   })
   return schema.validate(body)
