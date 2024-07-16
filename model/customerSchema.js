@@ -81,7 +81,7 @@ const validateCustomer = (body) => {
         fname: JOI.string().required(),
         lname: JOI.string().required(),
         phone_primary: JOI.string().required(),
-        phone_secondary: JOI.string().optional(),
+        phone_secondary: JOI.string().allow(""),
         address: JOI.string().required(),
         budget: JOI.number().required(),
         adminId: JOI.string().optional(),

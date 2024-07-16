@@ -46,8 +46,8 @@ const validateExpense = (body) => {
         amount: Joi.number().required(),
         createdAt: Joi.string(),
         updatedAt: Joi.string(),
-        comment: Joi.string().optional(),
-        isActive: Joi.boolean().optional(),
+        comment: Joi.string().allow(""),
+        isActive: Joi.boolean(),
     })
     return schema.validate(body)
 }

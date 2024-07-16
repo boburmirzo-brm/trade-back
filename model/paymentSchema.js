@@ -35,7 +35,7 @@ const PaymentSchema = new Schema({
     type: {
         type: String,
         enum: ['cash', 'card'],
-        required: true,
+        required: false,
         default: "cash"
     },
     isActive: {
@@ -49,12 +49,12 @@ const Payments = model("payments", PaymentSchema)
 const validatePayment = (body) => {
     const schema = JOI.object({
         customerId: JOI.string().required(),
-        adminId: JOI.string().optional(),
+        adminId: JOI.string().allow(""),
         amount: JOI.number().required(),
         createdAt: JOI.string(),
         updatedAt: JOI.string(),
-        comment: JOI.string().optional(),
-        type: JOI.string().required(),
+        comment: JOI.string().allow(""),
+        type: JOI.string().allow("cash"),
         isActive: JOI.boolean()
     })
     return schema.validate(body)

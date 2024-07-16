@@ -112,7 +112,7 @@ const validateBuyOrSell = (body) => {
     payCheck:JOI.when('status', {
       is: 'output',
       then: JOI.string().required(),
-      otherwise: JOI.string().optional(),
+      otherwise: JOI.string().allow(""),
     }),
 
   });
