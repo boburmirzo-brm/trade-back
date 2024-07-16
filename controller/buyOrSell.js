@@ -9,8 +9,14 @@ const mongoose = require("mongoose");
 class BuyOrSellController {
   async getAll(req, res) {
     try {
-      const { count = 1, pagination = 10, status=["input", "output"] } = req.query;
-      const buyOrSells = await BuyOrSells.find({ ...dateQuery(req.query), status: { $in: status} })
+      const { limit = 10, skip = 0, status=["input", "output"] } = req.query;
+
+      const query = {
+        ...dateQuery(req.query),
+        status: { $in: status }
+      };
+
+      const buyOrSells = await BuyOrSells.find(query)
         .populate([
           { path: "sellerId", select: ["fname", "lname"] },
           { path: "customerId", select: ["fname", "lname"] },
@@ -19,23 +25,24 @@ class BuyOrSellController {
         ])
         .sort({
           createdAt: -1,
-        });
+        }).limit(limit).skip(skip*limit);
       if (!buyOrSells.length) {
         return handleResponse(
           res,
-          404,
+          400,
           "warning",
           "Kirim-chiqimlar topilmadi",
           null
         );
       }
+      const total = await BuyOrSells.countDocuments(query)
       handleResponse(
         res,
         200,
         "success",
         "Barcha kirim-chiqimlar",
-        buyOrSells.slice(0, count * pagination),
-        buyOrSells.length
+        buyOrSells,
+        total
       );
     } catch {
       handleResponse(res, 500, "error", "Serverda xatolik", null);
@@ -44,11 +51,12 @@ class BuyOrSellController {
   async getByCustomerId(req, res) {
     try {
       const { id } = req.params;
-      const { count = 1, pagination = 10 } = req.query;
-      const buyOrSells = await BuyOrSells.find({
+      const { limit = 10, skip = 0 } = req.query;
+      const query = {
         ...dateQuery(req.query),
         customerId: id,
-      })
+      }
+      const buyOrSells = await BuyOrSells.find(query)
         .populate([
           { path: "customerId", select: ["fname", "lname"] },
           { path: "adminId", select: ["fname", "lname"] },
@@ -56,23 +64,24 @@ class BuyOrSellController {
         ])
         .sort({
           createdAt: -1,
-        });
+        }).limit(limit).skip(skip*limit);
       if (!buyOrSells.length) {
         return handleResponse(
           res,
-          404,
+          400,
           "warning",
           "Kirim-chiqimlar topilmadi",
           null
         );
       }
+      const total = await BuyOrSells.countDocuments(query)
       handleResponse(
         res,
         200,
         "success",
         "Barcha kirim-chiqimlar",
-        buyOrSells.slice(0, count * pagination),
-        buyOrSells.length
+        buyOrSells,
+        total
       );
     } catch {
       handleResponse(res, 500, "error", "Serverda xatolik", null);
@@ -81,11 +90,12 @@ class BuyOrSellController {
   async getBySellerId(req, res) {
     try {
       const { id } = req.params;
-      const { count = 1, pagination = 10 } = req.query;
-      const buyOrSells = await BuyOrSells.find({
+      const { limit = 10, skip = 0, } = req.query;
+      const query = {
         ...dateQuery(req.query),
         sellerId: id,
-      })
+      }
+      const buyOrSells = await BuyOrSells.find(query)
         .populate([
           { path: "sellerId", select: ["fname", "lname"] },
           { path: "adminId", select: ["fname", "lname"] },
@@ -93,23 +103,24 @@ class BuyOrSellController {
         ])
         .sort({
           createdAt: -1,
-        });
+        }).limit(limit).skip(skip*limit);
       if (!buyOrSells.length) {
         return handleResponse(
           res,
-          404,
+          400,
           "warning",
           "Kirim-chiqimlar topilmadi",
           null
         );
       }
+      const total = await BuyOrSells.countDocuments(query)
       handleResponse(
         res,
         200,
         "success",
         "Barcha kirim-chiqimlar",
-        buyOrSells.slice(0, count * pagination),
-        buyOrSells.length
+        buyOrSells,
+        total
       );
     } catch {
       handleResponse(res, 500, "error", "Server error", null);
@@ -133,7 +144,7 @@ class BuyOrSellController {
 
         const product = await Products.findById(productId);
         if (!product) {
-          return handleResponse(res, 404, "error", "Kirim-chiqimlar toplimadi", null);
+          return handleResponse(res, 400, "error", "Kirim-chiqimlar toplimadi", null);
         }
 
         let { singlePrice } = totalCalculate(product, {price,quantity}, "plus")
@@ -156,6 +167,7 @@ class BuyOrSellController {
         const BuyOrSell = await BuyOrSells.create({
           ...req.body,
           status: "input",
+          adminId: req.admin._id,
         });
 
         handleResponse(
@@ -195,7 +207,7 @@ class BuyOrSellController {
         if (!product) {
           return handleResponse(
             res,
-            404,
+            400,
             "warning",
             "kirim-chiqimlar topilmadi",
             null
@@ -230,6 +242,7 @@ class BuyOrSellController {
         const BuyOrSell = await BuyOrSells.create({
           ...req.body,
           originalPrice: product.price,
+          adminId: req.admin._id,
           status: "output",
         });
         handleResponse(res, 201, "success", "Mahsulot sotildi", BuyOrSell);
@@ -240,85 +253,6 @@ class BuyOrSellController {
       session.endSession();
     }
   }
-  // async returnedItem(req, res) {
-  //   const session = await mongoose.startSession();
-  //   try {
-  //     await session.withTransaction(async () => {
-  //       const { id } = req.params;
-  //       let buyOrSell = await BuyOrSells.findById(id);
-  //       if (!buyOrSell) {
-  //         return handleResponse(
-  //           res,
-  //           404,
-  //           "warning",
-  //           "Kirim-chiqimlar topilmadi",
-  //           null
-  //         );
-  //       }
-  
-  //       let product = await Products.findById(buyOrSell.productId);
-  //       let isInput = buyOrSell.status === "input";
-  //       let isReturned = buyOrSell.returnedItem;
-  
-  //       let priceDiffSeller = isReturned
-  //         ? +(buyOrSell.price * buyOrSell.quantity)
-  //         : -(buyOrSell.price * buyOrSell.quantity);
-  
-  //       let priceDiffCustomer = isReturned
-  //         ? -(buyOrSell.price * buyOrSell.quantity)
-  //         : +(buyOrSell.price * buyOrSell.quantity);
-  
-  //       if (isInput) {
-  //         await Sellers.findByIdAndUpdate(
-  //           buyOrSell.sellerId,
-  //           { $inc: { budget: priceDiffSeller } },
-  //           { session }
-  //         );
-  //       } else {
-  //         await Customers.findByIdAndUpdate(
-  //           buyOrSell.customerId,
-  //           { $inc: { budget: priceDiffCustomer } },
-  //           { session }
-  //         );
-  //       }
-  
-  //       let { singlePrice } = totalCalculate(
-  //         product,
-  //         buyOrSell,
-  //         (isInput && !isReturned) || (!isInput && isReturned) ? "plus" : "minus"
-  //       );
-        
-  //       let quantity = (isInput && !isReturned) || (!isInput && isReturned) ? -buyOrSell.quantity : +buyOrSell.quantity
-  
-  //       await Products.findByIdAndUpdate(
-  //         buyOrSell.productId,
-  //         {
-  //           price: singlePrice,
-  //           $inc: { quantity: quantity },
-  //         },
-  //         { session }
-  //       );
-  
-  //       await BuyOrSells.findByIdAndUpdate(
-  //         id,
-  //         { $set: { returnedItem: !isReturned } },
-  //         { session }
-  //       );
-  
-  //       handleResponse(
-  //         res,
-  //         200,
-  //         "success",
-  //         "Kirim-chiqim muvaffaqiyatli qaytarildi",
-  //         null
-  //       );
-  //     });
-  //   } catch (error) {
-  //     handleResponse(res, 500, "error", "Server error", null);
-  //   } finally {
-  //     session.endSession();
-  //   }
-  // }
   async returnedItem(req, res) {
     const session = await mongoose.startSession();
     try {
@@ -328,14 +262,13 @@ class BuyOrSellController {
         if (!buyOrSell) {
           return handleResponse(
             res,
-            404,
+            400,
             "warning",
             "Kirim-chiqimlar topilmadi",
             null
           );
         }
         let product = await Products.findById(buyOrSell.productId);
-
         if (buyOrSell.status === "input") {
           if(buyOrSell.returnedItem){
             // Sellerdan olish
@@ -392,7 +325,7 @@ class BuyOrSellController {
               { session }
             );
           }else{
-            // Customerdan qaytin olish
+            // Customerdan qaytib olish
             await Customers.findByIdAndUpdate(
               buyOrSell.customerId,
               {
@@ -436,7 +369,7 @@ class BuyOrSellController {
         if (!buyOrSell) {
           return handleResponse(
             res,
-            404,
+            400,
             "warning",
             "Kirim-chiqimlar topilmadi",
             null
@@ -506,3 +439,84 @@ function totalCalculate(storeAmount, newAmount, plus){
   let singlePrice = total / (quantity ? quantity : 1);
   return {quantity, singlePrice}
 }
+
+
+// async returnedItem(req, res) {
+  //   const session = await mongoose.startSession();
+  //   try {
+  //     await session.withTransaction(async () => {
+  //       const { id } = req.params;
+  //       let buyOrSell = await BuyOrSells.findById(id);
+  //       if (!buyOrSell) {
+  //         return handleResponse(
+  //           res,
+  //           400,
+  //           "warning",
+  //           "Kirim-chiqimlar topilmadi",
+  //           null
+  //         );
+  //       }
+  
+  //       let product = await Products.findById(buyOrSell.productId);
+  //       let isInput = buyOrSell.status === "input";
+  //       let isReturned = buyOrSell.returnedItem;
+  
+  //       let priceDiffSeller = isReturned
+  //         ? +(buyOrSell.price * buyOrSell.quantity)
+  //         : -(buyOrSell.price * buyOrSell.quantity);
+  
+  //       let priceDiffCustomer = isReturned
+  //         ? -(buyOrSell.price * buyOrSell.quantity)
+  //         : +(buyOrSell.price * buyOrSell.quantity);
+  
+  //       if (isInput) {
+  //         await Sellers.findByIdAndUpdate(
+  //           buyOrSell.sellerId,
+  //           { $inc: { budget: priceDiffSeller } },
+  //           { session }
+  //         );
+  //       } else {
+  //         await Customers.findByIdAndUpdate(
+  //           buyOrSell.customerId,
+  //           { $inc: { budget: priceDiffCustomer } },
+  //           { session }
+  //         );
+  //       }
+  
+  //       let { singlePrice } = totalCalculate(
+  //         product,
+  //         buyOrSell,
+  //         (isInput && !isReturned) || (!isInput && isReturned) ? "plus" : "minus"
+  //       );
+        
+  //       let quantity = (isInput && !isReturned) || (!isInput && isReturned) ? -buyOrSell.quantity : +buyOrSell.quantity
+  
+  //       await Products.findByIdAndUpdate(
+  //         buyOrSell.productId,
+  //         {
+  //           price: singlePrice,
+  //           $inc: { quantity: quantity },
+  //         },
+  //         { session }
+  //       );
+  
+  //       await BuyOrSells.findByIdAndUpdate(
+  //         id,
+  //         { $set: { returnedItem: !isReturned } },
+  //         { session }
+  //       );
+  
+  //       handleResponse(
+  //         res,
+  //         200,
+  //         "success",
+  //         "Kirim-chiqim muvaffaqiyatli qaytarildi",
+  //         null
+  //       );
+  //     });
+  //   } catch (error) {
+  //     handleResponse(res, 500, "error", "Server error", null);
+  //   } finally {
+  //     session.endSession();
+  //   }
+  // }

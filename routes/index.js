@@ -36,42 +36,43 @@ router.delete('/delete/customer/:id',[auth, owner], CustomerController.deleteByI
 
 // Product route
 const ProductController = require("../controller/product")
-router.get('/get/products', ProductController.getAll);
-router.get('/get/product/:id', ProductController.getById);
-router.post("/create/product", ProductController.createNew);
-router.patch("/update/product/:id", ProductController.updateById);
-router.delete("/delete/product/:id", ProductController.deleteById);
+router.get('/get/products',[auth, admin], ProductController.getAll);
+router.get('/get/product/:id',[auth, admin], ProductController.getById);
+router.post("/create/product",[auth, admin], ProductController.createNew);
+router.patch("/update/product/:id",[auth, admin], ProductController.updateById);
+router.delete("/delete/product/:id",[auth, owner], ProductController.deleteById);
 
 // BuyOrSell route
 const BuyOrSellController = require("../controller/buyOrSell")
 router.get('/get/buy-or-sell', BuyOrSellController.getAll);
-router.get('/get/buy-or-sell/customer/:id', BuyOrSellController.getByCustomerId);
-router.get('/get/buy-or-sell/seller/:id', BuyOrSellController.getBySellerId);
-router.post('/create/buy-or-sell/output', BuyOrSellController.createOutput);
-router.post('/create/buy-or-sell/input', BuyOrSellController.createInput);
-router.patch('/returned/buy-or-sell/:id', BuyOrSellController.returnedItem);
-router.delete('/delete/buy-or-sell/:id', BuyOrSellController.deleteById);
+router.get('/get/buy-or-sell/customer/:id',[auth, admin], BuyOrSellController.getByCustomerId);
+router.get('/get/buy-or-sell/seller/:id',[auth, admin], BuyOrSellController.getBySellerId);
+router.post('/create/buy-or-sell/output',[auth, admin], BuyOrSellController.createOutput);
+router.post('/create/buy-or-sell/input',[auth, admin], BuyOrSellController.createInput);
+router.patch('/returned/buy-or-sell/:id',[auth, admin], BuyOrSellController.returnedItem);
+router.delete('/delete/buy-or-sell/:id',[auth, owner], BuyOrSellController.deleteById);
 
 // Payment route
 const PaymentController = require("../controller/payment")
-router.get('/get/payments', PaymentController.getAll);
-router.get('/get/payments/:customerId', PaymentController.getByCustomerId);
-router.post('/create/payment', PaymentController.createNew);
-router.patch('/update/payment/:id', PaymentController.updateById);
-router.delete('/delete/payment/:id', PaymentController.deleteById);
+router.get('/get/payments',[auth, admin], PaymentController.getAll);
+router.get('/get/payments/:customerId',[auth, admin], PaymentController.getByCustomerId);
+router.post('/create/payment',[auth, admin], PaymentController.createNew);
+router.patch('/update/payment/:id',[auth, admin], PaymentController.updateById);
+router.delete('/delete/payment/:id',[auth, owner], PaymentController.deleteById);
 
 // Expense route
 const ExpenseController = require("../controller/expense")
-router.get('/get/expenses', ExpenseController.getAll);
-router.get('/get/expenses/:sellerId', ExpenseController.getBySellerId);
+router.get('/get/expenses',[auth, admin], ExpenseController.getAll);
+router.get('/get/expenses/:sellerId',[auth, admin], ExpenseController.getBySellerId);
 router.post('/create/expense', ExpenseController.createNew);
-router.patch('/update/expense/:id', ExpenseController.updateById);
-router.delete('/delete/expense/:id', ExpenseController.deleteById);
+router.patch('/update/expense/:id',[auth, admin], ExpenseController.updateById);
+router.delete('/delete/expense/:id',[auth, owner], ExpenseController.deleteById);
 
 // Salary route
 const SalaryController = require("../controller/salary")
-router.get('/get/salaries', SalaryController.getAll);
-router.post('/create/salary', SalaryController.createNew);
-router.patch('/update/salary/:id', SalaryController.updateById);
+router.get('/get/salaries',[auth, owner], SalaryController.getAll);
+router.post('/create/salary',[auth, owner], SalaryController.createNew);
+router.patch('/update/salary/:id',[auth, owner], SalaryController.updateById);
 
 module.exports = router;
+

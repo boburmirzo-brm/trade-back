@@ -18,7 +18,7 @@ class ProductController {
       if (!products.length) {
         return handleResponse(
           res,
-          404,
+          400,
           "warning",
           "Mahsulotlar topilmadi",
           null
@@ -46,7 +46,7 @@ class ProductController {
 
       const product = await Products.findById(id);
       if (!product) {
-        return handleResponse(res, 404, "warning", "Mahsulot topilmadi", null);
+        return handleResponse(res, 400, "warning", "Mahsulot topilmadi", null);
       }
       const buyOrSells = await BuyOrSells.find({
         ...dateQuery(req.query),
@@ -127,7 +127,7 @@ class ProductController {
       const { id } = req.params;
       const product = await Products.findById(id);
       if (!product) {
-        return handleResponse(res, 404, "warning", "Mahsulot topilmadi", null);
+        return handleResponse(res, 400, "warning", "Mahsulot topilmadi", null);
       }
       const updatedProduct = await Products.findByIdAndUpdate(
         id,

@@ -6,25 +6,24 @@ const { timeZone } = require("../utils/timeZone");
 class SellerController {
   async getAll(req, res) {
     try {
-      let { isActive = true } = req.query;
-      const sellers = await Sellers.find({
+      let { isActive = true, limit=10, skip=0 , defaultDayEgo=10 } = req.query;
+      const query = {
         isActive,
-        ...dateQuery(req.query),
-      })
-      // .populate([
-      //   { path: "adminId", select: ["fname", "lname"] },
-      // ]) // vatinchaga
-      .sort({ pin: -1, createdAt: -1 });
+        ...dateQuery(req.query,defaultDayEgo),
+      }
+      const sellers = await Sellers.find(query)
+      .sort({ pin: -1, createdAt: -1 }).limit(limit).skip(skip*limit);
       if (!sellers.length) {
         return handleResponse(res, 400, "warning", "Sotuvchilar topilmadi", null);
       }
+      const total = await Sellers.countDocuments(query)
       handleResponse(
         res,
         200,
         "success",
         "Barcha sotuvchilar",
         sellers,
-        sellers.length
+        total
       );
     } catch {
       handleResponse(res, 500, "error", "serverda xatolik", null);
@@ -32,7 +31,7 @@ class SellerController {
   }
   async search(req, res) {
     try {
-      let { isActive = true, value="" } = req.query;
+      let { isActive = true, value="", limit=10 } = req.query;
       let text = value.trim()
       if(!text){
         return handleResponse(res, 400, "warning", "Biror nima yozing", null);
@@ -49,7 +48,7 @@ class SellerController {
       })
       .sort({
         createdAt: -1,
-      });
+      }).limit(limit);
       if (!sellers.length) {
         return handleResponse(res, 400, "warning", "Sotuvchilar topilmadi", null);
       }

@@ -50,11 +50,6 @@ const AdminSchema = new Schema({
 },
 { timestamps: true }
 )
-// AdminSchema.pre('findOneAndUpdate', function (next) {
-//     console.log(timeZone());
-//     this.updatedAt = timeZone();
-//     next();
-// });
 
 const Admins = model("admins", AdminSchema)
 

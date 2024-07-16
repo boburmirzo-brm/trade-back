@@ -19,7 +19,7 @@ class ExpenseController{
       });
   
       if (!payments.length) {
-        return handleResponse(res, 404, "warning", "To'lovlar topilmadi", null);
+        return handleResponse(res, 400, "warning", "To'lovlar topilmadi", null);
       }
   
       handleResponse(
@@ -41,7 +41,7 @@ class ExpenseController{
       if (sellerId.length !== 24) {
         return handleResponse(
           res,
-          404,
+          400,
           "warning",
           "Id noto'g'ri berildi",
           null
@@ -55,7 +55,7 @@ class ExpenseController{
       });
   
       if (!expenses.length) {
-        return handleResponse(res, 404, "warning", "To'lovlar topilmadi", null);
+        return handleResponse(res, 400, "warning", "To'lovlar topilmadi", null);
       }
   
       handleResponse(
@@ -99,7 +99,7 @@ class ExpenseController{
           { session }
         );
   
-        const newExpense = await Expense.create(req.body);
+        const newExpense = await Expense.create({...req.body, adminId: req.admin._id});
   
         handleResponse(res, 201, "success", "Tolov qabul qilindi", newExpense);
       });
@@ -120,7 +120,7 @@ class ExpenseController{
         if ([expenseId, sellerId].some((el) => el.length !== 24)) {
           return handleResponse(
             res,
-            404,
+            400,
             "warning",
             "Id noto'g'ri berildi",
             null
@@ -146,7 +146,7 @@ class ExpenseController{
           !sellers ||
           sellers._id.toString() !== expenses.sellerId.toString()
         ) {
-          return handleResponse(res, 404, "warning", "To'lov topilmadi", null);
+          return handleResponse(res, 400, "warning", "To'lov topilmadi", null);
         }
   
         // Update payment
@@ -197,7 +197,7 @@ class ExpenseController{
         if (id.length !== 24) {
           return handleResponse(
             res,
-            404,
+            400,
             "warning",
             "Id noto'g'ri berildi",
             null
@@ -209,7 +209,7 @@ class ExpenseController{
   
         // Check if the expense exists
         if (!expense) {
-          return handleResponse(res, 404, "warning", "To'lov topilmadi", null);
+          return handleResponse(res, 400, "warning", "To'lov topilmadi", null);
         }
   
         // Update seller's budget

@@ -4,9 +4,18 @@ const { Schema, model } = require("mongoose"),
 
 
 const SellerSchema = new Schema({
-    // username: "",
-    // password: "",
-    // index: number
+    index: {
+        type: Number,
+        required: false
+    },
+    username: {
+        type: String,
+        default: ""
+    },
+    password: {
+        type: String,
+        default: ""
+    },
     fname: {
         type: String,
         require: true 
@@ -62,7 +71,7 @@ const SellerSchema = new Schema({
         type: Date,
         required: false,
         default: "2000-01-01T00:00:00.750Z"
-    }
+    },
 })
 
 const Sellers = model("sellers", SellerSchema)

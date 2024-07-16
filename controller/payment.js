@@ -8,28 +8,31 @@ const { timeZone } = require("../utils/timeZone")
 class PaymentController {
   async getAll(req, res) {
     try {
-      const { count = 1, pagination = 10 } = req.query;
-      const payments = await Payments.find(dateQuery(req.query))
+      const { isActive = true, limit = 10, skip = 0 } = req.query;
+      const query = {
+        ...dateQuery(req.query),
+      }
+      const payments = await Payments.find(query)
         .populate([
           { path: "customerId", select: ["fname", "lname"] },
           { path: "adminId", select: ["fname", "lname"] },
         ])
         .sort({
           createdAt: -1,
-        });
+        }).limit(limit).skip(skip*limit)
 
         // await Payments.countDocuments()
       if (!payments.length) {
-        return handleResponse(res, 404, "warning", "To'lovlar topilmadi", null);
+        return handleResponse(res, 400, "warning", "To'lovlar topilmadi", null);
       }
-
+      const total = await Payments.countDocuments(query)
       handleResponse(
         res,
         200,
         "success",
         "Barcha to'lovlar",
-        payments.slice(0, count * pagination),
-        payments.length
+        payments,
+        total
       );
     } catch (error) {
       handleResponse(res, 500, "error", "Serverda xatolik", null);
@@ -38,37 +41,38 @@ class PaymentController {
   async getByCustomerId(req, res) {
     try {
       const { customerId } = req.params;
-      const { count = 1, pagination = 10 } = req.query;
+      const { limit = 10, skip = 0 } = req.query;
       if (customerId.length !== 24) {
         return handleResponse(
           res,
-          404,
+          400,
           "warning",
           "Id noto'g'ri berildi",
           null
         );
       }
-      const payments = await Payments.find({
+      const query = {
         customerId,
         ...dateQuery(req.query),
-      })
+      }
+      const payments = await Payments.find(query)
       .populate([
         { path: "customerId", select: ["fname", "lname"] },
         { path: "adminId", select: ["fname", "lname"] },
       ])
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 }).limit(limit).skip(limit*skip)
 
       if (!payments.length) {
-        return handleResponse(res, 404, "warning", "To'lov topilmadi", null);
+        return handleResponse(res, 400, "warning", "To'lov topilmadi", null);
       }
-
+      const total = await Payments.countDocuments(query)
       handleResponse(
         res,
         200,
         "success",
         "Barcha to'lovlar",
-        payments.slice(0, count * pagination),
-        payments.length
+        payments,
+        total
       );
     } catch (error) {
       handleResponse(res, 500, "error", "Serverda xatolik", null);
@@ -101,12 +105,14 @@ class PaymentController {
             $inc: {
               budget: +amount,
             },
+            isPaidToday: timeZone(),
+            updatedAt: timeZone(),
           },
           { session }
         );
 
         // Create new payment
-        const newPayment = await Payments.create(req.body);
+        const newPayment = await Payments.create({...req.body, adminId: req.admin._id,});
 
         handleResponse(
           res,
@@ -133,7 +139,7 @@ class PaymentController {
         if ([paymentId, customerId].some((el) => el.length !== 24)) {
           return handleResponse(
             res,
-            404,
+            400,
             "warning",
             "Id noto'g'ri berildi",
             null
@@ -160,7 +166,7 @@ class PaymentController {
           !customer ||
           customer._id.toString() !== payment.customerId.toString()
         ) {
-          return handleResponse(res, 404, "warning", "To'lov topilmadi", null);
+          return handleResponse(res, 400, "warning", "To'lov topilmadi", null);
         }
 
         // Update payment
@@ -183,6 +189,7 @@ class PaymentController {
             $inc: {
               budget: -payment.amount + amount,
             },
+            updatedAt: timeZone()
           },
           { session, new: true }
         );
@@ -211,7 +218,7 @@ class PaymentController {
         if (paymentId.length !== 24) {
           return handleResponse(
             res,
-            404,
+            400,
             "warning",
             "Invalid ID provided",
             null
@@ -222,7 +229,7 @@ class PaymentController {
         const payment = await Payments.findById(paymentId);
         // Check if the payment exists
         if (!payment) {
-          return handleResponse(res, 404, "warning", "Payment not found", null);
+          return handleResponse(res, 400, "warning", "Payment not found", null);
         }
 
         // Update customer's budget (subtract the payment amount)

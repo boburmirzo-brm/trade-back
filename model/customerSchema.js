@@ -4,9 +4,18 @@ const { Schema, model } = require("mongoose"),
 
 
 const CustomerSchema = new Schema({
-    // username: "",
-    // password: "",
-    // index: number,
+    index: {
+        type: Number,
+        required: false
+    },
+    username: {
+        type: String,
+        default: ""
+    },
+    password: {
+        type: String,
+        default: ""
+    },
     fname: {
         type: String,
         required: true
@@ -78,7 +87,10 @@ const validateCustomer = (body) => {
         adminId: JOI.string().optional(),
         isActive: JOI.boolean(),
         createdAt: JOI.string(),
-        updatedAt: JOI.string()
+        updatedAt: JOI.string(),
+        pin: JOI.boolean(),
+        isArchive: JOI.boolean(),
+        isPaidToday: JOI.string(),
     })
     return schema.validate(body)
 }

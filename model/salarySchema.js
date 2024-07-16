@@ -20,7 +20,11 @@ const salarySchema = new Schema({
     comment: {
         type: String,
         required: false
-    }
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
 })
 
 const Salaries = model("salary", salarySchema)
@@ -30,7 +34,8 @@ const validateSalaries = (body) => {
         adminId: JOI.string().required(),
         amount: JOI.number().required(),
         createdAt: JOI.string(),
-        comment: JOI.string()
+        comment: JOI.string(),
+        isActive: JOI.boolean()
     })
     return schema.validate(body)
 }

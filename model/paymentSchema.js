@@ -12,7 +12,7 @@ const PaymentSchema = new Schema({
     adminId: {
         type: Schema.Types.ObjectId,
         ref: "admins",
-        required: true
+        required: false
     },
     amount: {
         type: Number,
@@ -30,8 +30,18 @@ const PaymentSchema = new Schema({
     },
     comment: {
         type: String,
-        required: false
-    }
+        default: ""
+    },
+    type: {
+        type: String,
+        enum: ['cash', 'card'],
+        required: true,
+        default: "cash"
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
 })
 
 const Payments = model("payments", PaymentSchema)
@@ -39,11 +49,13 @@ const Payments = model("payments", PaymentSchema)
 const validatePayment = (body) => {
     const schema = JOI.object({
         customerId: JOI.string().required(),
-        adminId: JOI.string().required(),
+        adminId: JOI.string().optional(),
         amount: JOI.number().required(),
         createdAt: JOI.string(),
         updatedAt: JOI.string(),
-        comment: JOI.string().allow("")
+        comment: JOI.string().optional(),
+        type: JOI.string().required(),
+        isActive: JOI.boolean()
     })
     return schema.validate(body)
 }

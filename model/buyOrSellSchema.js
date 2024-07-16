@@ -49,12 +49,12 @@ const buyOrSellSchema = new Schema(
     },
     comment: {
       type: String,
+      required: false,
       default: '',
     },
-   
     returnedItem: {
       type: Boolean,
-      required: true,
+      required: false,
       default: false,
     },
     createdAt: {
@@ -67,6 +67,16 @@ const buyOrSellSchema = new Schema(
       required: false,
       default: ()=> timeZone()
     },
+    isActive: {
+      type: Boolean,
+      default: true
+    },
+    payCheck: {
+      type: Date,
+      required: function () {
+        return this.status === 'output';
+      },
+    }
   },
 );
 
@@ -96,8 +106,15 @@ const validateBuyOrSell = (body) => {
     comment: JOI.string().allow(''),
     adminId: JOI.string(),
     returnedItem: JOI.boolean(),
+    isActive: JOI.boolean(),
     createdAt: JOI.string(),
-    updatedAt: JOI.string()
+    updatedAt: JOI.string(),
+    payCheck:JOI.when('status', {
+      is: 'output',
+      then: JOI.string().required(),
+      otherwise: JOI.string().optional(),
+    }),
+
   });
 
   return schema.validate(body);

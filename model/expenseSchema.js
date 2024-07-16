@@ -6,7 +6,7 @@ const expenseSchema = new Schema({
     adminId: {
         type: Schema.Types.ObjectId,
         ref: "admins",
-        required: true
+        required: false
     },
     sellerId: {
         type: Schema.Types.ObjectId,
@@ -29,20 +29,25 @@ const expenseSchema = new Schema({
     },
     comment: {
         type: String,
-        required: false
-    }
+        default: ""
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
 })
 
 const Expense = model("expenses", expenseSchema)
 
 const validateExpense = (body) => {
     const schema = Joi.object({
-        adminId: Joi.string().required(),
+        adminId: Joi.string().optional(),
         sellerId: Joi.string().required(),
         amount: Joi.number().required(),
         createdAt: Joi.string(),
         updatedAt: Joi.string(),
-        comment: Joi.string().allow(""),
+        comment: Joi.string().optional(),
+        isActive: Joi.boolean().optional(),
     })
     return schema.validate(body)
 }

@@ -6,21 +6,23 @@ const { timeZone } = require("../utils/timeZone");
 class CustomerController {
   async getAll(req, res) {
     try {
-      let { isActive = true } = req.query;
-      const customers = await Customers.find({
+      let { isActive = true, limit=10, skip=0, defaultDayEgo=10 } = req.query;
+      const query = {
         isActive,
-        ...dateQuery(req.query),
-      }).sort({ pin: -1, createdAt: -1 });
+        ...dateQuery(req.query, defaultDayEgo),
+      }
+      const customers = await Customers.find(query).sort({ pin: -1, createdAt: -1 }).limit(limit).skip(skip*limit);
       if (!customers.length) {
         return handleResponse(res, 400, "warning", "Mijozlar topilmadi", null);
       }
+      const total = await Customers.countDocuments(query)
       handleResponse(
         res,
         200,
         "success",
         "Barcha mijozlar",
         customers,
-        customers.length
+        total
       );
     } catch {
       handleResponse(res, 500, "error", "serverda xatolik", null);
@@ -28,7 +30,7 @@ class CustomerController {
   }
   async search(req, res) {
     try {
-      let { isActive = true, value = "" } = req.query;
+      let { isActive = true, value = "", limit=10 } = req.query;
       let text = value.trim();
       if (!text) {
         return handleResponse(res, 400, "warning", "Biror nima yozing", null);
@@ -42,7 +44,7 @@ class CustomerController {
           { phone_primary: { $regex: text, $options: "i" } },
           { phone_secondary: { $regex: text, $options: "i" } },
         ],
-      }).sort({ createdAt: -1 });
+      }).sort({ createdAt: -1 }).limit(limit);
       if (!customers.length) {
         return handleResponse(res, 400, "warning", "Mijozlar topilmadi", null);
       }

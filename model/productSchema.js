@@ -35,7 +35,8 @@ const productSchema = new Schema({
     },
     comment: {
         type: String,
-        required: false
+        required: false,
+        default: ""
     },
     adminId: {
         type: Schema.Types.ObjectId,
@@ -46,7 +47,11 @@ const productSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "sellers",
         required: false
-    }
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
 });
 
 const Products = model("products", productSchema);
@@ -60,9 +65,10 @@ const validationProduct = (body) => {
         units: Joi.string().required(),
         createdAt: Joi.string(),
         updatedAt: Joi.string(),
-        comment: Joi.string().allow(""),
+        comment: Joi.string().optional(),
         adminId: Joi.string().required(),
-        sellerId: Joi.string().required()
+        sellerId: Joi.string().required(),
+        isActive: Joi.boolean()
     });
     return schema.validate(body);
 }
