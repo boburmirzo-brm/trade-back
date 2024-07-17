@@ -8,9 +8,11 @@ const {owner} = require("../middleware/owner")
 const AdminController = require("../controller/admin")
 router.get('/get/admins',[auth, owner], AdminController.getAll);
 router.get('/get/admin/:id',[auth, owner], AdminController.getById);
+router.get('/get/profile',[auth], AdminController.getProfile);
 router.post('/admin/sign-up',[auth, owner], AdminController.signUp);
 router.post('/admin/sign-in', AdminController.signIn);
 router.patch('/update/admin/:id',[auth, owner], AdminController.updateById);
+router.patch('/update/profile',[auth], AdminController.updateProfile);
 router.patch('/isactive/admin/:id',[auth, owner], AdminController.isActice);
 router.delete('/delete/admin/:id',[auth, owner], AdminController.deleteById);
 

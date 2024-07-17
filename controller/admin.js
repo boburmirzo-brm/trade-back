@@ -2,6 +2,7 @@ const { Admins, validateAdmin } = require("../model/adminSchema");
 // const bcrypt = require("bcryptjs");
 const JWT = require("jsonwebtoken");
 const { handleResponse } = require("../utils/handleResponse");
+const { timeZone } = require("../utils/timeZone");
 require("dotenv").config()
 
 class AdminController {
@@ -27,6 +28,39 @@ class AdminController {
       handleResponse(res, 500, "error", "Serverda xatolik", null);
     }
   }
+  async getProfile(req, res) {
+    try {
+      const id = req.admin._id
+      const admin = await Admins.findById(id).select("-password");
+      if (!admin) {
+        return handleResponse(res, 400, "warning", "Hodim topilmadi", null);
+      }
+      handleResponse(res, 200, "success", "Hodim malumotlari", {user:admin, date: timeZone()});
+    } catch (error) {
+      handleResponse(res, 500, "error", "Serverda xatolik", null);
+    }
+  }
+  async updateProfile (req, res) {
+    try {
+      const id = req.admin._id;
+      const { username } = req.body;
+      const admin = await Admins.findById(id);
+      const checkUsername = await Admins.findOne({ username });
+      if (checkUsername && admin) {
+        if (admin.username !== checkUsername.username) {
+          return handleResponse(res, 400, "warning", `Bu "username" allaqachon mavjud shuning boshqa "username" bering`, null);
+        }
+      }
+  
+      let updatedAdmin = await Admins.findByIdAndUpdate(id, req.body, {
+        new: true,
+      });
+      // const updatedAdminOne = await Admins.find({ _id: id })
+      handleResponse(res, 200, "success", "Ma'lumotlar yangilandi",updatedAdmin);
+    } catch {
+      handleResponse(res, 500, "error", "serverda xatolik", null);
+    }
+  };
   async getById(req, res) {
     try {
       const { id } = req.params;
