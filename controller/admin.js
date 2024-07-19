@@ -42,7 +42,7 @@ class AdminController {
   }
   async updateProfile (req, res) {
     try {
-      const { error } = validateAdmin(req.body);
+      const { error } = validateAdmin({...req.body, password:"12345678"});
       if (error) {
         return handleResponse(
           res,
@@ -62,7 +62,7 @@ class AdminController {
         }
       }
   
-      let updatedAdmin = await Admins.findByIdAndUpdate(id, req.body, {
+      let updatedAdmin = await Admins.findByIdAndUpdate(id, {...req.body, password: admin.password}, {
         new: true,
       });
       // const updatedAdminOne = await Admins.find({ _id: id })
