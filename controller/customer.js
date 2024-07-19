@@ -1,50 +1,67 @@
 const { Customers, validateCustomer } = require("../model/customerSchema");
 const { dateQuery } = require("../utils/dateQuery");
 const { handleResponse } = require("../utils/handleResponse");
+const { debtFinding, paidTodayFinding } = require("../utils/findQuery");
 const { timeZone } = require("../utils/timeZone");
 
 class CustomerController {
   async getAll(req, res) {
     try {
-      let { isActive = true, limit=10, skip=0, defaultDayEgo=10 } = req.query;
+      let {
+        isActive = true,
+        isArchive= true,
+        limit = 10,
+        skip = 0,
+        // defaultDayEgo = 10,
+        debt,
+        budget,
+        createdAt = -1,
+        paidToday
+      } = req.query;
+
+     
+
       const query = {
         isActive,
-        ...dateQuery(req.query, defaultDayEgo),
-      }
-      const customers = await Customers.find(query).sort({ pin: -1, createdAt: -1 }).limit(limit).skip(skip*limit);
+        isArchive,
+        // ...dateQuery(req.query, defaultDayEgo),
+        ...debtFinding(debt),
+        ...paidTodayFinding(paidToday)
+      };
+      let sorting = budget ? { budget } : { pin: -1, createdAt}
+      const customers = await Customers.find(query)
+        .sort(sorting)
+        .limit(limit)
+        .skip(skip * limit);
+
       if (!customers.length) {
         return handleResponse(res, 400, "warning", "Mijozlar topilmadi", null);
       }
-      const total = await Customers.countDocuments(query)
-      handleResponse(
-        res,
-        200,
-        "success",
-        "Barcha mijozlar",
-        customers,
-        total
-      );
+      const total = await Customers.countDocuments(query);
+      handleResponse(res, 200, "success", "Barcha mijozlar", customers, total);
     } catch {
       handleResponse(res, 500, "error", "serverda xatolik", null);
     }
   }
   async search(req, res) {
     try {
-      let { isActive = true, value = "", limit=10 } = req.query;
+      let { isActive = true, value = "", limit = 10 } = req.query;
       let text = value.trim();
       if (!text) {
         return handleResponse(res, 400, "warning", "Biror nima yozing", null);
       }
       const customers = await Customers.find({
         isActive,
-        ...dateQuery(req.query),
+        // ...dateQuery(req.query),
         $or: [
           { fname: { $regex: text, $options: "i" } },
           { lname: { $regex: text, $options: "i" } },
           { phone_primary: { $regex: text, $options: "i" } },
           { phone_secondary: { $regex: text, $options: "i" } },
         ],
-      }).sort({ createdAt: -1 }).limit(limit);
+      })
+        .sort({ createdAt: -1 })
+        .limit(limit);
       if (!customers.length) {
         return handleResponse(res, 400, "warning", "Mijozlar topilmadi", null);
       }

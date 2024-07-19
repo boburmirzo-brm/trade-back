@@ -42,6 +42,16 @@ class AdminController {
   }
   async updateProfile (req, res) {
     try {
+      const { error } = validateAdmin(req.body);
+      if (error) {
+        return handleResponse(
+          res,
+          400,
+          "warning",
+          error.details[0].message,
+          null
+        );
+      }
       const id = req.admin._id;
       const { username } = req.body;
       const admin = await Admins.findById(id);
@@ -130,7 +140,7 @@ class AdminController {
           },
           process.env.PRIVATE_KEY
         );
-        handleResponse(res, 201, "success", "Xush kelibsiz", {
+        handleResponse(res, 200, "success", "Xush kelibsiz", {
           user: checkAdmin,
           token: TOKEN,
         });
@@ -149,6 +159,16 @@ class AdminController {
   }
   async updateById (req, res) {
     try {
+      const { error } = validateAdmin(req.body);
+      if (error) {
+        return handleResponse(
+          res,
+          400,
+          "warning",
+          error.details[0].message,
+          null
+        );
+      }
       const { id } = req.params;
       const { username } = req.body;
       const admin = await Admins.findById(id);
