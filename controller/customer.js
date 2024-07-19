@@ -9,7 +9,7 @@ class CustomerController {
     try {
       let {
         isActive = true,
-        isArchive= true,
+        isArchive= false,
         limit = 10,
         skip = 0,
         // defaultDayEgo = 10,
@@ -28,7 +28,7 @@ class CustomerController {
         ...debtFinding(debt),
         ...paidTodayFinding(paidToday)
       };
-      let sorting = budget ? { budget } : { pin: -1, createdAt}
+      let sorting = Number(budget) ? { budget } : { pin: -1, createdAt}
       const customers = await Customers.find(query)
         .sort(sorting)
         .limit(limit)
