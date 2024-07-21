@@ -66,7 +66,7 @@ router.delete('/delete/payment/:id',[auth, owner], PaymentController.deleteById)
 const ExpenseController = require("../controller/expense")
 router.get('/get/expenses',[auth, admin], ExpenseController.getAll);
 router.get('/get/expenses/:sellerId',[auth, admin], ExpenseController.getBySellerId);
-router.post('/create/expense', ExpenseController.createNew);
+router.post('/create/expense',[auth, admin], ExpenseController.createNew);
 router.patch('/update/expense/:id',[auth, admin], ExpenseController.updateById);
 router.delete('/delete/expense/:id',[auth, owner], ExpenseController.deleteById);
 

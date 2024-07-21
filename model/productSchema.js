@@ -41,7 +41,7 @@ const productSchema = new Schema({
     adminId: {
         type: Schema.Types.ObjectId,
         ref: "admins",
-        required: true
+        required: false
     },
     sellerId: {
         type: Schema.Types.ObjectId,
@@ -66,7 +66,7 @@ const validationProduct = (body) => {
         createdAt: Joi.string(),
         updatedAt: Joi.string(),
         comment: Joi.string().allow(""),
-        adminId: Joi.string().required(),
+        adminId: Joi.string().optional(),
         sellerId: Joi.string().required(),
         isActive: Joi.boolean()
     });

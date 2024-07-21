@@ -11,7 +11,10 @@ class ProductController {
     try {
       const { count = 1, pagination = 10 } = req.query;
       const products = await Products.find(dateQuery(req.query))
-        .populate([{ path: "adminId", select: ["fname", "lname"] }])
+        .populate([
+          { path: "adminId", select: ["fname", "lname"] },
+          { path: "sellerId", select: ["fname", "lname"] }
+        ])
         .sort({
           createdAt: -1,
         });
@@ -85,11 +88,11 @@ class ProductController {
             null
           );
         }
-        const newProduct = await Products.create(req.body);
+        const newProduct = await Products.create({...req.body, adminId: req.admin._id});
         const buyOrSellItems = {
           status: "input",
           sellerId: req.body.sellerId,
-          adminId: req.body.adminId,
+          adminId: req.admin._id,
           productId: newProduct._id.toString(),
           price: req.body.price,
           quantity: req.body.quantity,
