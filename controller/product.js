@@ -88,6 +88,16 @@ class ProductController {
             null
           );
         }
+        let existProduct = await Products.findOne({title: req.body.title})
+        if(existProduct){
+          return handleResponse(
+            res,
+            400,
+            "warning",
+            "Bu mahsulot allaqachon mavjud",
+            null
+          );
+        }
         const newProduct = await Products.create({...req.body, adminId: req.admin._id});
         const buyOrSellItems = {
           status: "input",

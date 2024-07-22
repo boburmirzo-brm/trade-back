@@ -7,7 +7,7 @@ const PaymentSchema = new Schema({
     customerId: {
         type: Schema.Types.ObjectId,
         ref: "customers",
-        required: true,
+        required: false,
     },
     adminId: {
         type: Schema.Types.ObjectId,
@@ -48,7 +48,7 @@ const Payments = model("payments", PaymentSchema)
 
 const validatePayment = (body) => {
     const schema = JOI.object({
-        customerId: JOI.string().required(),
+        customerId: JOI.string().allow(""),
         adminId: JOI.string().allow(""),
         amount: JOI.number().required(),
         createdAt: JOI.string(),
