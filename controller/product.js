@@ -9,15 +9,15 @@ const { timeZone } = require("../utils/timeZone");
 class ProductController {
   async getAll(req, res) {
     try {
-      const { count = 1, pagination = 10 } = req.query;
-      const products = await Products.find(dateQuery(req.query))
-        .populate([
-          { path: "adminId", select: ["fname", "lname"] },
-          { path: "sellerId", select: ["fname", "lname"] }
-        ])
+      const { isActive = true, limit = 10, skip = 0 } = req.query;
+      const products = await Products.find()
+        // .populate([
+        //   { path: "adminId", select: ["fname", "lname"] },
+        //   { path: "sellerId", select: ["fname", "lname"] }
+        // ])
         .sort({
           createdAt: -1,
-        });
+        }).limit(limit).skip(skip*limit)
       if (!products.length) {
         return handleResponse(
           res,
@@ -27,14 +27,55 @@ class ProductController {
           null
         );
       }
-
+      const total = await Products.countDocuments()
       handleResponse(
         res,
         200,
         "success",
         "Barcha mahsulotlar",
-        products.slice(0, count * pagination),
-        products.length
+        products,
+        total
+      );
+    } catch {
+      res
+        .status(500)
+        .json({ variant: "error", msg: "serverda xatolik", innerData: null });
+    }
+  }
+  async search(req, res) {
+    try {
+      const { isActive = true, value = "", limit = 10 } = req.query;
+      let text = value.trim();
+      if (!text) {
+        return handleResponse(res, 400, "warning", "Biror nima yozing", null);
+      }
+      const products = await Products.find({
+        isActive,
+        // ...dateQuery(req.query),
+        $or: [
+          { title: { $regex: text, $options: "i" } }
+        ],
+      })
+        .sort({
+          createdAt: -1,
+        }).limit(limit)
+
+      if (!products.length) {
+        return handleResponse(
+          res,
+          400,
+          "warning",
+          "Mahsulotlar topilmadi",
+          null
+        );
+      }
+      handleResponse(
+        res,
+        200,
+        "success",
+        "Barcha mahsulotlar",
+        products,
+        products.length,
       );
     } catch {
       res
@@ -45,16 +86,17 @@ class ProductController {
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const { count = 1, pagination = 10 } = req.query;
+      const { limit = 10, skip = 0 } = req.query;
 
       const product = await Products.findById(id);
       if (!product) {
         return handleResponse(res, 400, "warning", "Mahsulot topilmadi", null);
       }
-      const buyOrSells = await BuyOrSells.find({
-        ...dateQuery(req.query),
+
+      let query = {
         productId: id,
-      })
+      }
+      const buyOrSells = await BuyOrSells.find(query)
         .populate([
           { path: "sellerId", select: ["fname", "lname"] },
           { path: "customerId", select: ["fname", "lname"] },
@@ -62,11 +104,12 @@ class ProductController {
         ])
         .sort({
           createdAt: -1,
-        });
+        }).limit(limit).skip(skip*limit)
+        const total = await BuyOrSells.countDocuments(query)
       handleResponse(res, 200, "success", "Mahsulot tarixi", {
         product,
-        buyOrSells: buyOrSells.slice(0, count * pagination),
-        totalCount: buyOrSells.length,
+        buyOrSells,
+        totalCount: total
       });
     } catch {
       res

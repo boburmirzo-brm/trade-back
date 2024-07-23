@@ -8,27 +8,30 @@ const { timeZone } = require("../utils/timeZone");
 class ExpenseController{
   async getAll (req, res) {
     try {
-      const { count = 1, pagination = 10 } = req.query;
-      const payments = await Expense.find(dateQuery(req.query))
+      const { limit = 10, skip = 0 } = req.query;
+      const query = {
+        ...dateQuery(req.query),
+      }
+      const payments = await Expense.find(query)
       .populate([
         { path: "sellerId", select: ["fname", "lname"] },
         { path: "adminId", select: ["fname", "lname"] },
       ])
       .sort({
         createdAt: -1,
-      });
+      }).limit(limit).skip(skip*limit)
   
       if (!payments.length) {
         return handleResponse(res, 400, "warning", "To'lovlar topilmadi", null);
       }
-  
+      const total = await Expense.countDocuments(query)
       handleResponse(
         res,
         200,
         "success",
         "Barcha to'lovlar",
-        payments.slice(0, count * pagination),
-        payments.length
+        payments,
+        total
       );
     } catch (error) {
       handleResponse(res, 500, "error", "Serverda xatolik", null);
@@ -37,34 +40,32 @@ class ExpenseController{
   async getBySellerId(req, res){
     try {
       const { sellerId } = req.params;
-      const { count = 1, pagination = 10 } = req.query;
-      if (sellerId.length !== 24) {
-        return handleResponse(
-          res,
-          400,
-          "warning",
-          "Id noto'g'ri berildi",
-          null
-        );
-      }
-      const expenses = await Expense.find({
+      const { limit = 10, skip = 0 } = req.query;
+      const query = {
         sellerId,
-        ...dateQuery(req.query),
-      }).sort({
+        // ...dateQuery(req.query),
+      }
+     
+      const expenses = await Expense.find(query)
+      .populate([
+        { path: "sellerId", select: ["fname", "lname"] },
+        { path: "adminId", select: ["fname", "lname"] },
+      ])
+      .sort({
         createdAt: -1,
-      });
+      }).limit(limit).skip(limit*skip)
   
       if (!expenses.length) {
         return handleResponse(res, 400, "warning", "To'lovlar topilmadi", null);
       }
-  
+      const total = await Expense.countDocuments(query)
       handleResponse(
         res,
         200,
         "success",
         "Barcha to'lovlar",
-        expenses.slice(0, count * pagination),
-        expenses.length
+        expenses,
+        total
       );
     } catch (error) {
       handleResponse(res, 500, "error", "Serverda xatolik", null);
@@ -95,6 +96,8 @@ class ExpenseController{
             $inc: {
               budget: -amount,
             },
+            isPaidToday: timeZone(),
+            updatedAt: timeZone(),
           },
           { session }
         );
@@ -116,16 +119,6 @@ class ExpenseController{
         const { id: expenseId } = req.params;
         const { sellerId, amount, comment } = req.body;
   
-        // Validate IDs
-        if ([expenseId, sellerId].some((el) => el.length !== 24)) {
-          return handleResponse(
-            res,
-            400,
-            "warning",
-            "Id noto'g'ri berildi",
-            null
-          );
-        }
         const { error } = validateExpense(req.body);
         if (error) {
           return handleResponse(
@@ -136,7 +129,6 @@ class ExpenseController{
             null
           );
         }
-        // Fetch payment and customer
         const expenses = await Expense.findById(expenseId);
         const sellers = await Sellers.findById(sellerId);
   
@@ -169,6 +161,7 @@ class ExpenseController{
             $inc: {
               budget: +expenses.amount - amount,
             },
+            updatedAt: timeZone()
           },
           { session, new: true }
         );

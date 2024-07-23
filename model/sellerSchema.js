@@ -5,7 +5,7 @@ const { Schema, model } = require("mongoose"),
 
 const SellerSchema = new Schema({
     index: {
-        type: Number,
+        type: String,
         required: false
     },
     username: {
@@ -87,7 +87,10 @@ const validateSeller = (body) => {
       createdAt: JOI.string(),
       updatedAt: JOI.string(),
       adminId: JOI.string().optional(),
-      isActive: JOI.boolean()
+      isActive: JOI.boolean(),
+      isPaidToday: JOI.string(),
+      index: JOI.string(),
+
   })
   return schema.validate(body)
 }

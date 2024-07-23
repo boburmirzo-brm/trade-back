@@ -13,6 +13,7 @@ router.post('/admin/sign-up',[auth, owner], AdminController.signUp);
 router.post('/admin/sign-in', AdminController.signIn);
 router.patch('/update/admin/:id',[auth, owner], AdminController.updateById);
 router.patch('/update/profile',[auth], AdminController.updateProfile);
+router.patch('/update/reset-password',[auth], AdminController.resetPassword);
 router.patch('/isactive/admin/:id',[auth, owner], AdminController.isActice);
 router.delete('/delete/admin/:id',[auth, owner], AdminController.deleteById);
 
@@ -39,6 +40,7 @@ router.delete('/delete/customer/:id',[auth, owner], CustomerController.deleteByI
 // Product route
 const ProductController = require("../controller/product")
 router.get('/get/products',[auth, admin], ProductController.getAll);
+router.get('/get/products/search',[auth, admin], ProductController.search);
 router.get('/get/product/:id',[auth, admin], ProductController.getById);
 router.post("/create/product",[auth, admin], ProductController.createNew);
 router.patch("/update/product/:id",[auth, admin], ProductController.updateById);

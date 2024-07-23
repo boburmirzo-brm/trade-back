@@ -1,7 +1,7 @@
 require("dotenv").config()
 
 exports.owner = (req, res, next) => {
-    if (req?.admin?.role === process.env.OWNER_NAME) {
+    if (req?.admin?.role === process.env.OWNER_NAME.split("_")[0]) {
         next();
     }
     else {

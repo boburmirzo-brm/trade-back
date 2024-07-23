@@ -67,7 +67,7 @@ const validationProduct = (body) => {
         updatedAt: Joi.string(),
         comment: Joi.string().allow(""),
         adminId: Joi.string().optional(),
-        sellerId: Joi.string().required(),
+        sellerId: Joi.string().optional(),
         isActive: Joi.boolean()
     });
     return schema.validate(body);

@@ -5,7 +5,7 @@ const { Schema, model } = require("mongoose"),
 
 const CustomerSchema = new Schema({
     index: {
-        type: Number,
+        type: String,
         required: false
     },
     username: {
@@ -22,11 +22,11 @@ const CustomerSchema = new Schema({
     },
     lname: {
         type: String,
-        required: true
+        required: false
     },
     phone_primary: {
         type: String,
-        required: true
+        default: ""
     },
     phone_secondary: {
         type: String,
@@ -38,7 +38,7 @@ const CustomerSchema = new Schema({
     },
     budget: {
         type: Number,
-        required: true
+        default: 0
     },
     adminId: {
         type: Schema.Types.ObjectId,
@@ -79,18 +79,19 @@ const Customers = model("customers", CustomerSchema)
 const validateCustomer = (body) => {
     const schema = JOI.object({
         fname: JOI.string().required(),
-        lname: JOI.string().required(),
-        phone_primary: JOI.string().required(),
+        lname: JOI.string().allow(""),
+        phone_primary: JOI.string().allow(""),
         phone_secondary: JOI.string().allow(""),
         address: JOI.string().required(),
-        budget: JOI.number().required(),
-        adminId: JOI.string().optional(),
+        budget: JOI.number().allow(0),
+        adminId: JOI.string(),
         isActive: JOI.boolean(),
         createdAt: JOI.string(),
         updatedAt: JOI.string(),
         pin: JOI.boolean(),
         isArchive: JOI.boolean(),
         isPaidToday: JOI.string(),
+        index: JOI.string(),
     })
     return schema.validate(body)
 }

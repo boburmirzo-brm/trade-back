@@ -1,6 +1,7 @@
-const { Schema, model } = require("mongoose"),
-    JOI = require("joi"),
-    {timeZone} = require("../utils/timeZone")
+const { Schema, model } = require("mongoose");
+const JOI = require("joi");
+const { timeZone } =  require("../utils/timeZone");
+
 
 
 const AdminSchema = new Schema({
@@ -10,7 +11,7 @@ const AdminSchema = new Schema({
     },
     lname: {
         type: String,
-        required: true
+        default: ""
     },
     phone_primary: {
         type: String,
@@ -35,28 +36,26 @@ const AdminSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        required: false,
-        default: ()=> timeZone()
+        default: () => timeZone()
     },
     updatedAt: {
         type: Date,
-        required: false,
-        default: ()=> timeZone()
+        default: () => timeZone()
     },
     isActive: {
         type: Boolean,
         default: true
     }
 },
-{ timestamps: true }
-)
+// { timestamps: true }
+);
 
-const Admins = model("admins", AdminSchema)
+const Admins = model("admins", AdminSchema);
 
 const validateAdmin = (body) => {
     const schema = JOI.object({
         fname: JOI.string().required(),
-        lname: JOI.string().required(),
+        lname: JOI.string().allow(""),
         phone_primary: JOI.string().required(),
         phone_secondary: JOI.string().optional(),
         role: JOI.string().optional(),
@@ -65,10 +64,8 @@ const validateAdmin = (body) => {
         createdAt: JOI.string(),
         updatedAt: JOI.string(),
         isActive: JOI.boolean()
-        // salaries: JOI.array().required(),
-        // expenses: JOI.array().required()
-    })
-    return schema.validate(body)
-}
+    });
+    return schema.validate(body);
+};
 
-module.exports = { Admins, validateAdmin }
+module.exports = { Admins, validateAdmin };

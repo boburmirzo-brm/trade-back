@@ -1,56 +1,81 @@
 const { Sellers, validateSeller } = require("../model/sellerSchema");
 const { dateQuery } = require("../utils/dateQuery");
+const { debtFinding, paidTodayFinding } = require("../utils/findQuery");
 const { handleResponse } = require("../utils/handleResponse");
 const { timeZone } = require("../utils/timeZone");
 
 class SellerController {
   async getAll(req, res) {
     try {
-      let { isActive = true, limit=10, skip=0 , defaultDayEgo=10 } = req.query;
+      let {
+        isActive = true,
+        isArchive = false,
+        limit = 10,
+        skip = 0,
+        // defaultDayEgo = 10,
+        debt,
+        budget,
+        createdAt = -1,
+        paidToday,
+      } = req.query;
       const query = {
         isActive,
-        ...dateQuery(req.query,defaultDayEgo),
-      }
+        isArchive,
+        // ...dateQuery(req.query, defaultDayEgo),
+        ...debtFinding(debt),
+        ...paidTodayFinding(paidToday),
+      };
+      let sorting = Number(budget) ? { budget } : { pin: -1, createdAt };
+
       const sellers = await Sellers.find(query)
-      .sort({ pin: -1, createdAt: -1 }).limit(limit).skip(skip*limit);
+        .sort(sorting)
+        .limit(limit)
+        .skip(skip * limit);
       if (!sellers.length) {
-        return handleResponse(res, 400, "warning", "Sotuvchilar topilmadi", null);
+        return handleResponse(
+          res,
+          400,
+          "warning",
+          "Sotuvchilar topilmadi",
+          null
+        );
       }
-      const total = await Sellers.countDocuments(query)
-      handleResponse(
-        res,
-        200,
-        "success",
-        "Barcha sotuvchilar",
-        sellers,
-        total
-      );
+      const total = await Sellers.countDocuments(query);
+      handleResponse(res, 200, "success", "Barcha sotuvchilar", sellers, total);
     } catch {
       handleResponse(res, 500, "error", "serverda xatolik", null);
     }
   }
   async search(req, res) {
     try {
-      let { isActive = true, value="", limit=10 } = req.query;
-      let text = value.trim()
-      if(!text){
+      let { isActive = true, value = "", limit = 10 } = req.query;
+      let text = value.trim();
+      if (!text) {
         return handleResponse(res, 400, "warning", "Biror nima yozing", null);
       }
       const sellers = await Sellers.find({
         isActive,
-        ...dateQuery(req.query),
+        // ...dateQuery(req.query),
         $or: [
+          { index: { $regex: text, $options: "i" } },
           { fname: { $regex: text, $options: "i" } },
           { lname: { $regex: text, $options: "i" } },
           { phone_primary: { $regex: text, $options: "i" } },
-          { phone_secondary: { $regex: text, $options: "i" } }
-        ]
+          { phone_secondary: { $regex: text, $options: "i" } },
+        ],
       })
-      .sort({
-        createdAt: -1,
-      }).limit(limit);
+        .sort({
+          createdAt: -1,
+        })
+        .limit(limit);
       if (!sellers.length) {
-        return handleResponse(res, 400, "warning", "Sotuvchilar topilmadi", null);
+        return handleResponse(
+          res,
+          400,
+          "warning",
+          "Sotuvchilar topilmadi",
+          null
+        );
       }
       handleResponse(
         res,
@@ -67,10 +92,9 @@ class SellerController {
   async getById(req, res) {
     try {
       let { id } = req.params;
-      const seller = await Sellers.findById(id)
-      .populate([
+      const seller = await Sellers.findById(id).populate([
         { path: "adminId", select: ["fname", "lname"] },
-      ]) // vatinchaga;
+      ]);
       if (!seller) {
         return handleResponse(res, 400, "warning", "Sotuvchi topilmadi", null);
       }
@@ -91,7 +115,25 @@ class SellerController {
           null
         );
       }
-      const newSeller = await Sellers.create({...req.body, adminId:req.admin._id});
+      let existSeller = await Sellers.findOne({
+        phone_primary: req.body.phone_primary,
+      });
+      if (existSeller) {
+        return handleResponse(
+          res,
+          400,
+          "warning",
+          "Bu telefon raqam avval foydalanilgan",
+          null
+        );
+      }
+      const totalCustomerCount = await Sellers.countDocuments();
+
+      const newSeller = await Sellers.create({
+        ...req.body,
+        adminId: req.admin._id,
+        index: (totalCustomerCount + 1).toString().padStart(4, "0"),
+      });
       handleResponse(
         res,
         201,
@@ -113,6 +155,20 @@ class SellerController {
       const seller = await Sellers.findById(id);
       if (!seller) {
         return handleResponse(res, 400, "warning", "Sotuvchi topilmadi", null);
+      }
+      let existSeller = await Sellers.findOne({
+        phone_primary: req.body.phone_primary,
+      });
+      if (seller && existSeller) {
+        if (seller.phone_primary !== existSeller.phone_primary) {
+          return handleResponse(
+            res,
+            400,
+            "warning",
+            "Bu telefon raqam avval foydalanilgan",
+            null
+          );
+        }
       }
       const updateSeller = await Sellers.findByIdAndUpdate(
         id,
@@ -144,7 +200,7 @@ class SellerController {
       let updatedSeller = await Sellers.findByIdAndUpdate(id, {
         $set: {
           isActive: !seller.isActive,
-          updatedAt: timeZone()
+          updatedAt: timeZone(),
         },
       });
       handleResponse(
@@ -161,9 +217,9 @@ class SellerController {
   async deleteById(req, res) {
     try {
       const { id } = req.params;
-      const seller = await Sellers.exists({_id: id});
+      const seller = await Sellers.exists({ _id: id });
       if (!seller) {
-        return handleResponse(res, 400, "warning", "Sotuvchi topilmadi", null); 
+        return handleResponse(res, 400, "warning", "Sotuvchi topilmadi", null);
       }
       await Sellers.findByIdAndDelete(id);
       handleResponse(
@@ -179,4 +235,4 @@ class SellerController {
   }
 }
 
-module.exports = new SellerController
+module.exports = new SellerController();

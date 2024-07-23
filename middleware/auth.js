@@ -18,8 +18,15 @@ exports.auth = (req, res, next) => {
                 msg: "token kiritishda hatolik!"
             })
         } else {
-            req.admin = decode;
-            next()
+            if(decode.isActive){
+                req.admin = decode;
+                next()
+            }else{
+                return res.status(401).json({
+                    variant: "error",
+                    msg: "Kirishga ruhsat yo'q!"
+                })
+            }
         }
     })
 }

@@ -12,7 +12,7 @@ const buyOrSellSchema = new Schema(
     adminId: {
       type: Schema.Types.ObjectId,
       ref: "admins",
-      required: true,
+      required: false,
     },
     customerId: {
       type: Schema.Types.ObjectId,

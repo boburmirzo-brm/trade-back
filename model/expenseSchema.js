@@ -41,8 +41,8 @@ const Expense = model("expenses", expenseSchema)
 
 const validateExpense = (body) => {
     const schema = Joi.object({
-        adminId: Joi.string().optional(),
-        sellerId: Joi.string().required(),
+        adminId: Joi.string().allow(""),
+        sellerId: Joi.string().allow(""),
         amount: Joi.number().required(),
         createdAt: Joi.string(),
         updatedAt: Joi.string(),

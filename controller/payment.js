@@ -42,18 +42,18 @@ class PaymentController {
     try {
       const { customerId } = req.params;
       const { limit = 10, skip = 0 } = req.query;
-      if (customerId.length !== 24) {
-        return handleResponse(
-          res,
-          400,
-          "warning",
-          "Id noto'g'ri berildi",
-          null
-        );
-      }
+      // if (customerId.length !== 24) {
+      //   return handleResponse(
+      //     res,
+      //     400,
+      //     "warning",
+      //     "Id noto'g'ri berildi",
+      //     null
+      //   );
+      // }
       const query = {
         customerId,
-        ...dateQuery(req.query),
+        // ...dateQuery(req.query),
       }
       const payments = await Payments.find(query)
       .populate([
@@ -136,25 +136,25 @@ class PaymentController {
         const { customerId, amount, comment } = req.body;
 
         // Validate IDs
-        if ([paymentId, customerId].some((el) => el.length !== 24)) {
-          return handleResponse(
-            res,
-            400,
-            "warning",
-            "Id noto'g'ri berildi",
-            null
-          );
-        }
-        const { error } = validatePayment(req.body);
-        if (error) {
-          return handleResponse(
-            res,
-            400,
-            "warning",
-            error.details[0].message,
-            null
-          );
-        }
+        // if ([paymentId, customerId].some((el) => el.length !== 24)) {
+        //   return handleResponse(
+        //     res,
+        //     400,
+        //     "warning",
+        //     "Id noto'g'ri berildi",
+        //     null
+        //   );
+        // }
+        // const { error } = validatePayment(req.body);
+        // if (error) {
+        //   return handleResponse(
+        //     res,
+        //     400,
+        //     "warning",
+        //     error.details[0].message,
+        //     null
+        //   );
+        // }
 
         // Fetch payment and customer
         const payment = await Payments.findById(paymentId);

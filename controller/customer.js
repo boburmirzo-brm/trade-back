@@ -9,26 +9,24 @@ class CustomerController {
     try {
       let {
         isActive = true,
-        isArchive= false,
+        isArchive = false,
         limit = 10,
         skip = 0,
         // defaultDayEgo = 10,
         debt,
         budget,
         createdAt = -1,
-        paidToday
+        paidToday,
       } = req.query;
-
-     
 
       const query = {
         isActive,
         isArchive,
         // ...dateQuery(req.query, defaultDayEgo),
         ...debtFinding(debt),
-        ...paidTodayFinding(paidToday)
+        ...paidTodayFinding(paidToday),
       };
-      let sorting = Number(budget) ? { budget } : { pin: -1, createdAt}
+      let sorting = Number(budget) ? { budget } : { pin: -1, createdAt };
       const customers = await Customers.find(query)
         .sort(sorting)
         .limit(limit)
@@ -54,6 +52,7 @@ class CustomerController {
         isActive,
         // ...dateQuery(req.query),
         $or: [
+          { index: { $regex: text, $options: "i" } },
           { fname: { $regex: text, $options: "i" } },
           { lname: { $regex: text, $options: "i" } },
           { phone_primary: { $regex: text, $options: "i" } },
@@ -104,9 +103,23 @@ class CustomerController {
           null
         );
       }
+      let existCustomer = await Customers.findOne({
+        phone_primary: req.body.phone_primary,
+      });
+      if (existCustomer) {
+        return handleResponse(
+          res,
+          400,
+          "warning",
+          "Bu telefon raqam avval foydalanilgan",
+          null
+        );
+      }
+      const totalCustomerCount = await Customers.countDocuments()
       const newCustomer = await Customers.create({
         ...req.body,
         adminId: req.admin._id,
+        index: (totalCustomerCount+1).toString().padStart(4, "0")
       });
       handleResponse(
         res,
@@ -122,16 +135,30 @@ class CustomerController {
   async updateById(req, res) {
     try {
       const { id } = req.params;
-      const existCustomer = await Customers.findById(id);
-      if (!existCustomer) {
+      const customer = await Customers.findById(id);
+      if (!customer) {
         return handleResponse(res, 400, "warning", "Mijoz topilmadi", null);
+      }
+      let existCustomer = await Customers.findOne({
+        phone_primary: req.body.phone_primary,
+      });
+      if(customer && existCustomer){
+        if(customer.phone_primary !== existCustomer.phone_primary){
+          return handleResponse(
+            res,
+            400,
+            "warning",
+            "Bu telefon raqam avval foydalanilgan",
+            null
+          );
+        }
       }
       const updatedCustomer = await Customers.findByIdAndUpdate(
         id,
         {
-          ...req.body,
-          budget: existCustomer.budget,
-          updatedAt: timeZone(),
+            ...req.body,
+            budget: customer.budget,
+            updatedAt: timeZone(),
         },
         { new: true }
       );

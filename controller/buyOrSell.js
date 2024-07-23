@@ -5,6 +5,8 @@ const { Products } = require("../model/productSchema");
 const { dateQuery } = require("../utils/dateQuery");
 const { handleResponse } = require("../utils/handleResponse");
 const mongoose = require("mongoose");
+const {timeZone} = require("../utils/timeZone")
+
 
 class BuyOrSellController {
   async getAll(req, res) {
@@ -53,7 +55,7 @@ class BuyOrSellController {
       const { id } = req.params;
       const { limit = 10, skip = 0 } = req.query;
       const query = {
-        ...dateQuery(req.query),
+        // ...dateQuery(req.query),
         customerId: id,
       }
       const buyOrSells = await BuyOrSells.find(query)
@@ -92,7 +94,7 @@ class BuyOrSellController {
       const { id } = req.params;
       const { limit = 10, skip = 0, } = req.query;
       const query = {
-        ...dateQuery(req.query),
+        // ...dateQuery(req.query),
         sellerId: id,
       }
       const buyOrSells = await BuyOrSells.find(query)
@@ -143,8 +145,9 @@ class BuyOrSellController {
         const { sellerId, price, quantity, productId } = req.body;
 
         const product = await Products.findById(productId);
-        if (!product) {
-          return handleResponse(res, 400, "error", "Kirim-chiqimlar toplimadi", null);
+        const seller = await Sellers.exists({ _id: sellerId });
+        if (!product || !seller) {
+          return handleResponse(res, 400, "error", "Xatolik ro'y berdi", null);
         }
 
         let { singlePrice } = totalCalculate(product, {price,quantity}, "plus")
@@ -203,13 +206,13 @@ class BuyOrSellController {
 
         const { price, quantity, productId, customerId } = req.body;
         const product = await Products.findById(productId);
-
-        if (!product) {
+        const customer = await Customers.exists({ _id: customerId });
+        if (!product || !customer) {
           return handleResponse(
             res,
             400,
             "warning",
-            "kirim-chiqimlar topilmadi",
+            "Xatolik ro'y berdi",
             null
           );
         }
@@ -344,7 +347,8 @@ class BuyOrSellController {
           }
         }
         await BuyOrSells.findByIdAndUpdate(id, {
-          $set:{returnedItem: !buyOrSell.returnedItem}
+          $set:{returnedItem: !buyOrSell.returnedItem},
+          // updatedAt: timeZone()
         },{ session });
         handleResponse(
           res,
