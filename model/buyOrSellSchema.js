@@ -43,6 +43,11 @@ const buyOrSellSchema = new Schema(
         return this.status === 'output';
       },
     },
+    expense: {
+      type: Number,
+      default: 0,
+      required: false,
+    },
     quantity: {
       type: Number,
       required: true,
@@ -104,6 +109,7 @@ const validateBuyOrSell = (body) => {
     }),
     quantity: JOI.number().required(),
     comment: JOI.string().allow(''),
+    expense: JOI.number(),
     adminId: JOI.string(),
     returnedItem: JOI.boolean(),
     isActive: JOI.boolean(),

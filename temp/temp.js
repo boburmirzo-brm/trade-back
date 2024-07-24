@@ -233,5 +233,27 @@ let b = -150_000
 
 
 
+async function calculateTotalPrice() {
+  const uri = 'mongodb://localhost:27017'; // Replace with your MongoDB connection string
+  const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+  try {
+    await client.connect();
+    const database = client.db('databaseName'); // Replace with your database name
+    const collection = database.collection('collectionName'); // Replace with your collection name
+
+    const result = await collection.aggregate([
+      { $limit: 1000 },
+      { $group: { _id: null, total: { $sum: '$price' } } }
+    ]).toArray();
+
+    const totalPrice = result[0]?.total || 0;
+    console.log('Total price:', totalPrice);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    await client.close();
+  }
+}
 
 

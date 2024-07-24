@@ -53,6 +53,9 @@ router.get('/get/buy-or-sell/customer/:id',[auth, admin], BuyOrSellController.ge
 router.get('/get/buy-or-sell/seller/:id',[auth, admin], BuyOrSellController.getBySellerId);
 router.post('/create/buy-or-sell/output',[auth, admin], BuyOrSellController.createOutput);
 router.post('/create/buy-or-sell/input',[auth, admin], BuyOrSellController.createInput);
+// ================= update ==================
+// ================= update ==================
+// ================= update ==================
 router.patch('/returned/buy-or-sell/:id',[auth, admin], BuyOrSellController.returnedItem);
 router.delete('/delete/buy-or-sell/:id',[auth, owner], BuyOrSellController.deleteById);
 
@@ -62,6 +65,7 @@ router.get('/get/payments',[auth, admin], PaymentController.getAll);
 router.get('/get/payments/:customerId',[auth, admin], PaymentController.getByCustomerId);
 router.post('/create/payment',[auth, admin], PaymentController.createNew);
 router.patch('/update/payment/:id',[auth, admin], PaymentController.updateById);
+router.patch('/returned/payment/:id',[auth, admin], PaymentController.reterned);
 router.delete('/delete/payment/:id',[auth, owner], PaymentController.deleteById);
 
 // Expense route
@@ -70,6 +74,7 @@ router.get('/get/expenses',[auth, admin], ExpenseController.getAll);
 router.get('/get/expenses/:sellerId',[auth, admin], ExpenseController.getBySellerId);
 router.post('/create/expense',[auth, admin], ExpenseController.createNew);
 router.patch('/update/expense/:id',[auth, admin], ExpenseController.updateById);
+router.patch('/reterned/expense/:id',[auth, admin], ExpenseController.reterned);
 router.delete('/delete/expense/:id',[auth, owner], ExpenseController.deleteById);
 
 // Salary route
@@ -77,6 +82,12 @@ const SalaryController = require("../controller/salary")
 router.get('/get/salaries',[auth, owner], SalaryController.getAll);
 router.post('/create/salary',[auth, owner], SalaryController.createNew);
 router.patch('/update/salary/:id',[auth, owner], SalaryController.updateById);
+
+// Statistic route
+// Statistic route
+// Statistic route
+
+
 
 module.exports = router;
 

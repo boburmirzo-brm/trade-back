@@ -180,6 +180,67 @@ class ExpenseController{
       session.endSession();
     }
   }
+  async reterned(req, res){
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const { id } = req.params;
+  
+        const expense = await Expense.findById(id);
+        if (!expense) {
+          return handleResponse(res, 400, "warning", "To'lov topilmadi", null);
+        }
+
+        const seller = await Sellers.exists({_id:expense.sellerId});
+        if (!seller) {
+          return handleResponse(res, 400, "warning", "Mijoz topilmadi", null);
+        }
+
+        if(expense.isActive){
+          await Sellers.findByIdAndUpdate(
+            expense.sellerId,
+            {
+              $inc: {
+                budget: +expense.amount,
+              },
+            },
+            { session }
+          );
+        }else{
+          await Sellers.findByIdAndUpdate(
+            expense.sellerId,
+            {
+              $inc: {
+                budget: -expense.amount,
+              },
+            },
+            { session }
+          );
+        }
+        
+        await Expense.findByIdAndUpdate(
+          id,
+          {
+            isActive: !expense.isActive,
+            updatedAt: timeZone()
+          },
+          { session }
+        );
+  
+        handleResponse(
+          res,
+          200,
+          "success",
+          "To'lov muvaffaqiyatli qaytarildi",
+          null
+        );
+      });
+    } catch (error) {
+      handleResponse(res, 500, "error", "Serverda xatolik", null);
+    } finally {
+      session.endSession();
+    }
+  }
   async deleteById(req, res){
     const session = await mongoose.startSession();
     try {

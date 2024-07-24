@@ -65,6 +65,7 @@ const validationProduct = (body) => {
         units: Joi.string().required(),
         createdAt: Joi.string(),
         updatedAt: Joi.string(),
+        expense: Joi.number(),
         comment: Joi.string().allow(""),
         adminId: Joi.string().optional(),
         sellerId: Joi.string().optional(),

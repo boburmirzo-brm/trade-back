@@ -197,6 +197,9 @@ class SellerController {
       if (!seller) {
         return handleResponse(res, 400, "warning", "Sotuvchi topilmadi", null);
       }
+      if (seller.budget !== 0) {
+        return handleResponse(res, 400, "warning", "Sotuvchini hisobi yopilmagan", null);
+      }
       let updatedSeller = await Sellers.findByIdAndUpdate(id, {
         $set: {
           isActive: !seller.isActive,

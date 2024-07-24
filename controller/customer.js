@@ -180,6 +180,9 @@ class CustomerController {
       if (!customer) {
         return handleResponse(res, 400, "warning", "Mijoz topilmadi", null);
       }
+      if (customer.budget !== 0) {
+        return handleResponse(res, 400, "warning", "Mijozning hisobi yopilmagan", null);
+      }
       let updatedCustomer = await Customers.findByIdAndUpdate(id, {
         $set: {
           isActive: !customer.isActive,

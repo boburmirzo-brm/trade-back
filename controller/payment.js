@@ -65,6 +65,12 @@ class PaymentController {
       if (!payments.length) {
         return handleResponse(res, 400, "warning", "To'lov topilmadi", null);
       }
+
+      // const result = await Payments.aggregate([
+      //   { $match: { customerId: customerId } },
+      //   { $group: { _id: "$customerId", total: { $sum: "$amount" } } }
+      // ]);
+
       const total = await Payments.countDocuments(query)
       handleResponse(
         res,
@@ -200,6 +206,67 @@ class PaymentController {
           "success",
           "To'lov muvaffaqiyatli o'zgartirildi",
           updatedPayment
+        );
+      });
+    } catch (error) {
+      handleResponse(res, 500, "error", "Serverda xatolik", null);
+    } finally {
+      session.endSession();
+    }
+  }
+  async reterned(req, res) {
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const { id: paymentId } = req.params;
+
+        const payment = await Payments.findById(paymentId);
+        if (!payment) {
+          return handleResponse(res, 400, "warning", "To'lov topilmadi", null);
+        }
+
+        const customer = await Customers.exists({_id:payment.customerId});
+        if (!customer) {
+          return handleResponse(res, 400, "warning", "Mijoz topilmadi", null);
+        }
+
+        if(payment.isActive){
+          await Customers.findByIdAndUpdate(
+            payment.customerId,
+            {
+              $inc: {
+                budget: -payment.amount,
+              },
+            },
+            { session }
+          );
+        }else{
+          await Customers.findByIdAndUpdate(
+            payment.customerId,
+            {
+              $inc: {
+                budget: +payment.amount,
+              },
+            },
+            { session }
+          );
+        }
+
+        await Payments.findByIdAndUpdate(
+          paymentId,
+          {
+            isActive: !payment.isActive,
+            updatedAt: timeZone()
+          },
+          { session }
+        );
+
+        handleResponse(
+          res,
+          200,
+          "success",
+          "To'lov muvaffaqiyatli qaytarildi",
+          null
         );
       });
     } catch (error) {

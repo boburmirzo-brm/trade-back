@@ -141,13 +141,16 @@ class ProductController {
             null
           );
         }
+        const {price, expense, quantity} = req.body
+        req.body.price = price + (expense / quantity)
         const newProduct = await Products.create({...req.body, adminId: req.admin._id});
         const buyOrSellItems = {
           status: "input",
           sellerId: req.body.sellerId,
           adminId: req.admin._id,
           productId: newProduct._id.toString(),
-          price: req.body.price,
+          price: price,
+          expense: req.body.expense,
           quantity: req.body.quantity,
         };
         const buyError = validateBuyOrSell(buyOrSellItems);
