@@ -22,7 +22,8 @@ const CustomerSchema = new Schema({
     },
     lname: {
         type: String,
-        required: false
+        required: false,
+        default: ""
     },
     phone_primary: {
         type: String,

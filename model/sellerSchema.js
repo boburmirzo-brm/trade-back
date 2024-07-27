@@ -22,7 +22,8 @@ const SellerSchema = new Schema({
     },
     lname: {
         type: String,
-        require: true
+        require: false,
+        default: ""
     },
     phone_primary: {
         type: String,
@@ -79,7 +80,7 @@ const Sellers = model("sellers", SellerSchema)
 const validateSeller = (body) => {
   const schema = JOI.object({
       fname: JOI.string().required(),
-      lname: JOI.string().required(),
+      lname: JOI.string().allow(""),
       phone_primary: JOI.string().required(),
       phone_secondary: JOI.string().allow(""),
       address: JOI.string().required(),
